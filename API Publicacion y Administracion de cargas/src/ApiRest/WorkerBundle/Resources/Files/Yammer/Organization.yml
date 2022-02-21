@@ -1,0 +1,143 @@
+BodyClass: fichaComunidad fichaLugar
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#organizationName
+  Mapa:
+    Tipo: open
+    Zoom: 15
+    Marcadores:
+        Query: select ?long ?lat ?title where { ?location <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?loc. ?loc <http://www.w3.org/2003/01/geo/wgs84_pos#long> ?lat . ?loc <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ?long . ?location <http://opendata.aragon.es/def/ei2a#organizationName> ?title filter(?location = <%s>) . }
+        Campo: uri 
+  Texto: 
+    Tipo: HTML
+    Query: select lcase(?campo)  where { ?s <http://opendata.aragon.es/def/ei2a#organizationName> ?name. ?s <http://purl.org/dc/elements/1.1/identifier> ?identifier. filter (?s = <%s>) bind(concat(?name, '-id', ?identifier) as ?campo)}
+    Campo: uri
+    Html: <iframe width="620px" height="200px" src="http://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s"></iframe>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select ?cif ?telefono ?email ?fax ?direccion ?nombreComarca ?nombreAlcalde ?nombreDiputacion ?nombreProvincia where { <%s> ei2a:CIF ?cif . optional {<%s> ei2a:phone ?telefono .} optional {<%s> foaf:mbox ?email .} optional {<%s> org:hasSite ?site . ?site org:siteAddress ?siteAddress . ?siteAddress vcard:Fax ?fax . ?siteAddress vcard:hasAddress ?address . ?address vcard:street-address ?direccion . } optional {<%s> org:subOrganizationOf ?comarca . ?comarca ei2a:publicEntityType ei2a:Comarca . ?comarca ei2a:organizationName ?nombreComarca .} optional {?membership org:organization <%s> . ?membership org:member ?member. ?membership org:role ?role . ?member foaf:name ?nombreAlcalde . ?role <http://opendata.aragon.es/def/ei2ia#roleName> 'A' .} optional {<%s> org:subOrganizationOf ?diputacion . ?diputacion ei2a:publicEntityType ei2a:DiputaciónProvincialForal . ?diputacion foaf:organizationName ?nombreDiputacion .} optional {<%s> org:subOrganizationOf ?provincia . ?provincia rdf:type <http://dbpedia.org/ontology/Province> . ?provincia <http://www.w3.org/2000/01/rdf-schema#label> ?nombreProvincia .}}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Dirección
+          Valor: direccion
+        Campo2:
+          Nombre: CIF
+          Valor: cif
+        Campo3:
+          Nombre: Comarca
+          Valor: nombreComarca
+        Campo4:
+          Nombre: Telefono
+          Valor: telefono
+        Campo6:
+          Nombre: Fax
+          Valor: fax
+        Campo7:
+          Nombre: Email
+          Valor: email
+        Campo8:
+          Nombre: Alcalde
+          Valor: nombreAlcalde
+        Campo10:
+          Nombre: Provincia        
+          Valor: nombreProvincia
+        Campo11:
+          Nombre: Diputacion        
+          Valor: nombreDiputacion
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Habitantes        
+          Valor: HABITANTES
+        Campo2:
+          Nombre: Superficie        
+          Valor: SUPERFICIE
+  Tablas:     
+    Tabla1:
+      Tipo: Virtuoso       
+      Descripcion: Habitantes según el padrón municipal, datos anuales 
+      Query: select distinct substr(str(?year), 1, 4) as ?year ?population where{ ?obs <http://purl.org/linked-data/cube#dataSet> <http://opendata.aragon.es/recurso/DataSet/PadronMunicipal> . ?obs ?x ?y  . {?obs <http://purl.org/linked-data/sdmx/2009/dimension#refArea> ?uriAragopedia . <%s> owl:sameAs ?uriAragopedia} UNION {<%s> owl:sameAs ?uriAragopedia. ?uriAragopedia <http://opendata.aragon.es/def/Aragopedia#hasObservation> ?obs} ?obs <http://opendata.aragon.es/def/Aragopedia#year> ?year. ?obs <http://opendata.aragon.es/def/Aragopedia#population> ?population.  } ORDER BY ?year
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Año
+          Valor: year
+          ClassTitulo: w25     
+          ClassValor:  mays
+        Columna2:
+          Nombre: Habitantes
+          Valor: population
+    Tabla2:
+      Titulo: Pleno del municipio 
+      Tipo: Virtuoso
+      Query: select distinct ?nombrePersona ?cargo where  {?membership <http://www.w3.org/ns/org#organization> <%s> . ?membership <http://www.w3.org/ns/org#member> ?member. ?membership  <http://www.w3.org/ns/org#role> ?role . ?member <http://opendata.aragon.es/def/ei2a#fullName> ?nombrePersona . ?role <http://opendata.aragon.es/def/ei2a#roleName> ?roleName .?member <http://www.w3.org/ns/person#memberOf> ?partido .	?partido <http://opendata.aragon.es/def/ei2a#organizationName> ?nombrePartido. bind(concat(?roleName, ' ' , ?nombrePartido) as ?cargo)}
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Persona
+          Valor: nombrePersona
+        Columna2:
+          Nombre: Cargo
+          Valor: cargo  
+          ClassTitulo: w25     
+          ClassValor:  mays
+PanelLateral:
+  ListaEnlaces:
+    ListaEnlace1:
+      Titulo: Más información
+      Tipo: gadget-masinfo
+      Enlaces:        
+        Enlace1:
+          Texto: ELDA
+          url: %s?api_key=e103dc13eb276ad734e680f5855f20c6&_view=completa
+          CampoUrl: http://www.w3.org/2002/07/owl#sameAs
+        Enlace2:
+          Texto: Presupuesto
+          url: http://opendata.aragon.es/presupuesto/municipio/%s
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace3:
+          Texto: Datos en Aragón Open data
+          url: http://opendata.aragon.es/opendata/municipio/%s
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+    ListaEnlace2:
+      Titulo: Enlaces de interes 
+      #gadget-iconos gadget-enlaces gadget-masinfo
+      Tipo: gadget-enlaces
+      Enlaces:
+        Enlace1:
+          Texto: Ver ordenanzas fiscales municipales de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: url:[entorno]/pool/filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Entidades&&&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23ordenanza_fiscal_municipio>____Ordenanza+Fiscal+Municipio
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace2:
+          Texto: Ver ordenanzas Generales municipales de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: url:[entorno]/pool/filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Entidades&&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23ordenanza_general_municipio>____Ordenanza+General+Municipio
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace3:
+          Texto: Ver información turística de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: url:[entorno]/pool/filtros?tem=4&stem=&pro=&com=&mun=%s&ent=&sent=&from=Temas
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace4:
+          Texto: Ver información de agricultura de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: url:[entorno]/pool/filtros?tem=&stem=&pro=&com=&mun=%s&ent=93&sent=&from=Entidades
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace5:
+          Texto: Ver datos del instituto aragoñés del agua de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: url:[entorno]/pool/filtros?tem=&stem=&pro=&com=&mun=%s&ent=104&sent=&from=Entidades
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace6:
+          Texto: Ver rutas de autobús de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName   
+          url: url:[entorno]/pool/filtros?tem=&stem=&pro=&com=&mun=%s&ent=121&sent=&from=Entidades
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier

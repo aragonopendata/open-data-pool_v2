@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+
+	<link rel="stylesheet" href="{{ asset('/pool-v2/estilos-api/js/jquery/jquery-ui-1.8.16.custom.css')}}" type="text/css" media="screen">
+	<link rel="stylesheet" href="{{ asset('/pool-v2/estilos-api/css/cargavistas.css')}}" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="{{ asset('/pool-v2/estilos-api/css/editablegrid.css" type="text/css')}}" media="screen">
+
+{% endblock %}
+
+{% block javascripts %}
+
+	<script src="{{ asset('/pool-v2/estilos-api/js/editablegrid.js')}}"></script>	
+	<script src="{{ asset('/pool-v2/estilos-api/js/editablegrid_renderers.js')}}" ></script>
+	<script src="{{ asset('/pool-v2/estilos-api/js/editablegrid_editors.js')}}" ></script>
+	<script src="{{ asset('/pool-v2/estilos-api/js/editablegrid_validators.js')}}" ></script>
+	<script src="{{ asset('/pool-v2/estilos-api/js/editablegrid_utils.js')}}" ></script>
+	<!-- include javascript and css files for jQuery, needed for the datepicker and autocomplete extensions -->
+	<script src="{{ asset('/pool-v2/estilos-api/js/jquery/jquery-1.6.4.min.js')}}" ></script>
+	<script src="{{ asset('/pool-v2/estilos-api/js/jquery/jquery-ui-1.8.16.custom.min.js')}}" ></script>  
+	<script src="{{ asset('/pool-v2/estilos-api/js/cargavistas.js')}}" ></script> 
+
+{% endblock %}
+
+{% block extrajavascripts %}
+
+	<script type="text/javascript">
+		window.onload = function() { 
+			// you can use "datasource/demo.php" if you have PHP installed, to get live data from the demo.csv file
+			editableGrid.onloadJSON("/pool-administracion-cargas-v2/cargavistas/damedatos.json"); 
+		}; 
+	</script>
+
+{% endblock %}	
+
+{% block body %}
+		<div id="header">
+				<h1> AodPool V2 - Administración de cargas </h1> 
+		</div>
+		<div id="wrap">
+			<!-- Feedback message zone -->
+			<div id="message"></div>
+
+			<!--  Number of rows per page and bars in chart -->
+			<div id="pagecontrol">
+				<label for="pagecontrol">Filas por pagina: </label>
+				<select id="pagesize" name="pagesize">
+					<option value="5">5</option>
+					<option value="10">10</option>
+					<option value="15">15</option>
+					<option value="20">20</option>
+					<option value="25">25</option>
+					<option value="30">30</option>
+					<option value="40">40</option>
+					<option value="50">50</option>
+				</select>
+				&nbsp;&nbsp;
+				 <a style="float:right; margin-left: 20px;" title="Refrescar datos" href="/pool-administracion-cargas"><img src="{{ asset('/pool-v2/estilos-api/images/refresh.png')}}" alt="Refrescar datos" /></a>
+			</div>		
+			<!-- Grid filter -->
+			<label for="filter">Filtro :</label>
+			<input type="text" id="filter"/>
+			<!-- Grid contents -->
+			<div id="tablecontent"></div>		
+			<!-- Paginator control -->
+			<div id="paginator"></div>	
+			<!-- Edition zone (to demonstrate the "fixed" editor mode) -->
+			<div id="edition"></div>			
+		</div>
+{% endblock %}	
+

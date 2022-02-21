@@ -1,0 +1,36 @@
+worker:
+    path: /worker/{id}
+    defaults: { _controller: "ApiRestWorkerBundle:Default:index"}
+   
+AodPool:
+    resource: "@ApiRestAodPoolBundle/Controller/AodPoolController.php"
+    type:     rest
+    prefix:   /api-publicacion
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    prefix:   /api-docs
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation
+
+cargavistas:
+    path: /pool-administracion-cargas/cargavistas/damedatos.json
+    defaults: { _controller: "AppBundle/DefaultController:getDatosAction"}
+
+borracargavistas:
+    path: /pool-administracion-cargas/cargavistas/borra/{id}
+    defaults: { _controller: "AppBundle/DefaultController:borraDatosAction"}
+
+actulizacargavistas:
+    path: /pool-administracion-cargas/cargavistas/actualiza/{id}/{nombre}/{valor}
+    defaults: { _controller: "AppBundle/DefaultController:actulizaDatosAction"}
+
+insertacargavistas:
+    path: /pool-administracion-cargas/cargavistas/inserta/{datos}
+    defaults: { _controller: "AppBundle/DefaultController:insertaDatosAction"}
+
+verarchivocargavistas:
+    path: /pool-administracion-cargas/cargavistas/verarchivo/{archivo}
+    defaults: { _controller: "AppBundle/DefaultController:verArchivoAction"}

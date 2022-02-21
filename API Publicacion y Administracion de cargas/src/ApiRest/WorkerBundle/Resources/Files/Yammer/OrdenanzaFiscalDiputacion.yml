@@ -1,0 +1,26 @@
+BodyClass: fichaComunidad fichaOrdenazaFiscalDiputacion
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#nameDocument
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?fechaPubli ?fechaApro ?subTipo where {<%s> dc:identifier ?identificador . optional {<%s> ei2a:registrationDate ?fechaPubli .} optional {<%s> ei2a:startDate ?fechaApro .} optional {<%s> ei2a:documentType ?subTipo .}}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Fecha de publicación
+          Valor: fechaPubli
+        Campo2:
+          Nombre: Fecha de aprobación
+          Valor: fechaApro
+        Campo3:
+          Nombre: Subtipo
+          Valor: subTipo
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s owl:sameAs ?sameAs. ?sameAs dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="http://servicios.aragon.es/portalAALL/document.do?clobId=%s">Descárgate la ordenanza</a>

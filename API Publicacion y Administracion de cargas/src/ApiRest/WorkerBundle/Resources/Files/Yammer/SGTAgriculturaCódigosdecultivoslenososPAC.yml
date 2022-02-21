@@ -1,0 +1,24 @@
+BodyClass: fichaComunidad fichaLugar
+PanelCentral:
+ #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#nameDocument
+  #Texto: 
+  #Tipo: HTML
+  #Query: select lcase(?campo)  where { ?s <http://opendata.aragon.es/def/ei2a#OrganizationName> ?name. ?s <http://purl.org/dc/elements/1.1/identifier> ?identifier. filter (?s = <%s>) bind(concat(?name, '-id', ?identifier) as ?campo)}
+  #  Campo: uri
+  #  Html: <iframe width="620px" height="200px" src="http://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s"></iframe>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select  ?ano ?descripcion where{<%s> <http://purl.org/dc/elements/1.1/date> ?ano. <%s> <http://opendata.aragon.es/def/ei2a#description> ?descripcion.} 
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Año
+          Valor: ano
+        Campo2:
+          Nombre: Descripción
+          Valor: descripcion
+        
+       

@@ -1,0 +1,260 @@
+BodyClass: fichaComunidad fichaOrganizacion
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#organizationName
+  Mapa:
+    Tipo: idearagon
+    Valor: https://idearagon.aragon.es/visor/index.html?HERRAMIENTAS=NO&ACTIVELAYER=Localidad&QUERY=c_muni_ine=%s
+    Campo: http://purl.org/dc/elements/1.1/identifier
+  Texto: 
+    Tipo: HTML
+    Query: select replace(replace(replace(replace(lcase(?campo)," ","-"),"ñ","n"),"ü","u"),",","") where { ?s <http://opendata.aragon.es/def/ei2a#organizationName> ?name. ?s <http://purl.org/dc/elements/1.1/identifier> ?identifier. filter (?s = <%s>) bind(concat(?name, '-id', ?identifier) as ?campo)}
+    Campo: uri
+    Html: <iframe title="aemet" class="normal" width="685px" height="205px" src="https://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s?w=g4p01110001ohmffffffw680z200x4f86d9t95b6e9r1s8n2"></iframe>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select ?cif ?telefono ?email ?fax ?direccion ?nombreComarca ?idComarca ?nombreAlcalde ?nombreDiputacion ?nombreProvincia where { <%s> ei2a:CIF ?cif . optional {<%s> ei2a:phone ?telefono .} optional {<%s> foaf:mbox ?email .} optional {<%s> org:hasSite ?site . ?site org:siteAddress ?siteAddress . ?siteAddress vcard:Fax ?fax . ?siteAddress vcard:hasAddress ?address . ?address vcard:street-address ?direccion . } optional {<%s> org:subOrganizationOf ?comarca . ?comarca ei2a:publicEntityType ei2a:Comarca . ?comarca ei2a:organizationName ?nombreComarca . ?comarca <http://purl.org/dc/elements/1.1/identifier> ?idComarca} optional {?membership org:organization <%s> . ?membership org:member ?member. ?membership org:role ?role . ?member foaf:name ?nombreAlcalde . ?role <http://opendata.aragon.es/def/ei2ia#roleName> 'A' .} optional {<%s> org:subOrganizationOf ?diputacion . ?diputacion ei2a:publicEntityType ei2a:DiputaciónProvincialForal . ?diputacion foaf:organizationName ?nombreDiputacion .} } 
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Dirección
+          Valor: direccion
+        Campo2:
+          Nombre: CIF
+          Valor: cif
+        Campo3:
+          Nombre: Comarca
+          Valor: nombreComarca
+          Url: /pool/detalles?url=comarca-%s
+          CampoUrl: idComarca
+        Campo4:
+          Nombre: Telefono
+          Valor: telefono
+        Campo6:
+          Nombre: Fax
+          Valor: fax
+        Campo7:
+          Nombre: Email
+          Url: mailto:%s
+          Valor: email
+          CampoUrl: email
+        Campo8:
+          Nombre: Alcalde
+          Valor: nombreAlcalde
+        Campo11:
+          Nombre: Diputacion        
+          Valor: nombreDiputacion
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Habitantes        
+          Valor: HABITANTES
+        Campo2:
+          Nombre: Superficie        
+          Valor: SUPERFICIE
+  Tablas:     
+    Tabla2:
+      Titulo: PLENO DEL MUNICIPIO 
+      Tipo: Virtuoso
+      Query: select distinct ?nombrePersona ?cargo where  {?membership <http://www.w3.org/ns/org#organization> <%s> . ?membership <http://www.w3.org/ns/org#member> ?member. ?membership  <http://www.w3.org/ns/org#role> ?role . ?member <http://opendata.aragon.es/def/ei2a#fullName> ?nombrePersona . ?role <http://opendata.aragon.es/def/ei2a#roleName> ?roleName .?member <http://www.w3.org/ns/person#memberOf> ?partido .	?partido <http://opendata.aragon.es/def/ei2a#organizationName> ?nombrePartido. bind(concat(?roleName, ' ' , ?nombrePartido) as ?cargo)}
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Persona
+          Valor: nombrePersona
+        Columna2:
+          Nombre: Cargo
+          Valor: cargo  
+          ClassTitulo: w25     
+          ClassValor:  mays
+    Tabla3:
+      Titulo: EVOLUCIÓN HISTÓRICA DE LA POBLACIÓN, SERIE 1900-2011 (POR DÉCADAS) 
+      Tipo: Virtuoso
+      Query: select distinct (strafter(str(?refPeriod), "http://reference.data.gov.uk/id/year/") AS ?nameRefPeriod) ?poblacion   where { ?obs qb:dataSet <http://opendata.aragon.es/recurso/iaest/dataset/03-030002TM>. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refPeriod> ?refPeriod. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refArea> ?refArea. <%s> owl:sameAs ?refArea. OPTIONAL {  ?obs <http://opendata.aragon.es/def/iaest/medida#poblacion> ?poblacion  } .} ORDER BY ASC(?nameRefPeriod) LIMIT 300
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Año
+          Valor: nameRefPeriod
+        Columna2:
+          Nombre: Población
+          Valor: poblacion  
+          ClassTitulo: w25     
+          ClassValor:  mays
+    Tabla4:
+      Titulo: CIFRAS OFICIALES DE POBLACIÓN ANUALES DESDE 1996
+      Tipo: Virtuoso
+      Query: select distinct (strafter(str(?refPeriod), "http://reference.data.gov.uk/id/year/") AS ?nameRefPeriod) ?poblacion   where { ?obs qb:dataSet <http://opendata.aragon.es/recurso/iaest/dataset/03-030001TM>. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refPeriod> ?refPeriod. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refArea> ?refArea.  <%s> owl:sameAs ?refArea. OPTIONAL {  ?obs <http://opendata.aragon.es/def/iaest/medida#poblacion> ?poblacion  } .} ORDER BY ASC(?nameRefPeriod) LIMIT 300
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Año
+          Valor: nameRefPeriod
+        Columna2:
+          Nombre: Población
+          Valor: poblacion  
+          ClassTitulo: w25     
+          ClassValor:  mays
+    Tabla6:
+      Titulo: ACTIVIDADES SEGÚN SECTOR Y AGRUPACIÓN DE ACTIVIDAD (CNAE 09) 
+      Tipo: Virtuoso
+      Query: select distinct (strafter(str(?refPeriod), "http://reference.data.gov.uk/id/year/") AS ?nameRefPeriod) ?rama_de_actividad  ?sector  ?numero_de_actividades   where { ?obs qb:dataSet <http://opendata.aragon.es/recurso/iaest/dataset/01-010076TM>. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refPeriod> ?refPeriod. FILTER (?refPeriod IN (<http://reference.data.gov.uk/id/year/2009>,<http://reference.data.gov.uk/id/year/2010>,<http://reference.data.gov.uk/id/year/2011>,<http://reference.data.gov.uk/id/year/2012>,<http://reference.data.gov.uk/id/year/2013>,<http://reference.data.gov.uk/id/year/2014>)). ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refArea> ?refArea. <%s> owl:sameAs ?refArea . OPTIONAL { ?obs <http://opendata.aragon.es/def/iaest/dimension#rama-de-actividad> ?foo0. ?foo0 skos:prefLabel ?rama_de_actividad  } . OPTIONAL { ?obs <http://opendata.aragon.es/def/iaest/dimension#sector> ?foo1. ?foo1 skos:prefLabel ?sector  } . OPTIONAL {  ?obs <http://opendata.aragon.es/def/iaest/medida#numero-de-actividades> ?numero_de_actividades  } . } ORDER BY DESC(?refPeriod)ASC(?sector) ASC(?rama_de_actividad)LIMIT 20
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Año
+          Valor: nameRefPeriod
+        Columna2:
+          Nombre: Sector
+          Valor: sector
+        Columna3:
+          Nombre: Rama de actividad
+          Valor: rama_de_actividad    
+        Columna4:
+          Nombre: Numero de actividades
+          Valor: numero_de_actividades  
+          ClassTitulo: w25     
+          ClassValor:  mays
+    Tabla7:
+      Titulo: ANTIGÜEDAD DE LOS EDIFICIOS 
+      Tipo: Virtuoso
+      Query: select distinct (replace(replace(replace(strafter(str(?propiedadDecada), "http://opendata.aragon.es/def/iaest/medida#"), "sin-definir", "  Sin definir"), "antes-de-1950", " Antes de 1950"), "2010-y-posterior", "2010 y posterior") AS ?nameDecada) ?decada (replace(?fuente_y_fecha, "-", " ") as ?nameFuente_y_fecha)  where { ?obs qb:dataSet <http://opendata.aragon.es/recurso/iaest/dataset/01-010022TM>. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refPeriod> ?refPeriod. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refArea> ?refArea. <%s> owl:sameAs ?refArea. OPTIONAL { ?obs <http://opendata.aragon.es/def/iaest/dimension#fuente-y-fecha> ?foo0. ?foo0 skos:prefLabel ?fuente_y_fecha  } . OPTIONAL {  ?obs ?propiedadDecada ?decada. filter (?propiedadDecada in( <http://opendata.aragon.es/def/iaest/medida#1980-1989>, <http://opendata.aragon.es/def/iaest/medida#2010-y-posterior>, <http://opendata.aragon.es/def/iaest/medida#2000-2009>, <http://opendata.aragon.es/def/iaest/medida#1990-1999>, <http://opendata.aragon.es/def/iaest/medida#1960-1969>, <http://opendata.aragon.es/def/iaest/medida#1970-1979>, <http://opendata.aragon.es/def/iaest/medida#1950-1959>, <http://opendata.aragon.es/def/iaest/medida#sin-definir>, <http://opendata.aragon.es/def/iaest/medida#antes-de-1950>))} .} ORDER BY ASC(?refPeriod) ASC(?nameDecada) LIMIT 300
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Período
+          Valor: nameDecada 
+          ClassValor:  mays
+        Columna2:
+          Nombre: Número de edificios
+          Valor: decada  
+          ClassTitulo: w25     
+          ClassValor:  mays
+        Columna3:
+          Nombre: Fuente
+          Valor: nameFuente_y_fecha      
+          ClassValor:  mays
+    Tabla8:
+      Titulo: SUPERFICIES CATASTRALES
+      Tipo: Virtuoso
+      Query: select distinct (strafter(str(?refPeriod), "http://reference.data.gov.uk/id/year/") AS ?nameRefPeriod) ?rustico_superficie  ?porcentaje_rustica  ?urbano_superficie  ?porcentaje_urbana   where { ?obs qb:dataSet <http://opendata.aragon.es/recurso/iaest/dataset/01-010019TM>. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refPeriod> ?refPeriod. ?obs <http://purl.org/linked-data/sdmx/2009/dimension#refArea> ?refArea. <%s> owl:sameAs ?refArea. OPTIONAL {  ?obs <http://opendata.aragon.es/def/iaest/medida#rustico-superficie> ?rustico_superficie  } . OPTIONAL {  ?obs <http://opendata.aragon.es/def/iaest/medida#porcentaje-rustica> ?porcentaje_rustica  } . OPTIONAL {  ?obs <http://opendata.aragon.es/def/iaest/medida#urbano-superficie> ?urbano_superficie  } . OPTIONAL {  ?obs <http://opendata.aragon.es/def/iaest/medida#porcentaje-urbana> ?porcentaje_urbana  } .} ORDER BY ASC(?nameRefPeriod) LIMIT 30
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Año
+          Valor: nameRefPeriod
+        Columna2:
+          Nombre: Superficie rústica
+          Valor: rustico_superficie  
+          ClassValor:  mays
+        Columna3:
+          Nombre: Porcentaje de superficie rústica
+          Valor: porcentaje_rustica  
+          ClassValor: mays
+        Columna4:
+          Nombre: Superficie urbana
+          Valor: urbano_superficie  
+          ClassValor:  mays
+        Columna5:
+          Nombre: Porcentaje de superficie urbana
+          Valor: porcentaje_urbana      
+          ClassValor:  mays
+    Tabla9:
+      Titulo: PAC. SUPERFICIE MEDIA DE LAS PARCELAS DE SECANO Y REGADÍO
+      Tipo: Virtuoso
+      Query: SELECT ?fecha ROUND(1000*AVG(?superficiesecano))/1000 as ?superficiesecano ROUND(1000*AVG(?superficieregadio))/1000 as ?superficieregadio FROM <http://opendata.aragon.es/def/ei2a/pac> { ?s <http://opendata.aragon.es/def/ei2a#dryOrIrrigated> ?patata OPTIONAL{?s <http://opendata.aragon.es/def/ei2a#dryOrIrrigated> 'Secano'. ?s <http://opendata.aragon.es/def/ei2a#surface> ?superficiesecano. } OPTIONAL{?s <http://opendata.aragon.es/def/ei2a#dryOrIrrigated> 'Regadío'. ?s <http://opendata.aragon.es/def/ei2a#surface> ?superficieregadio. } ?s <http://purl.org/dc/elements/1.1/date> ?fecha. ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?o . filter(?o = <%s>) }order by asc(?fecha)
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Año
+          Valor: fecha
+        Columna2:
+          Nombre: Secano
+          Valor: superficiesecano  
+          ClassTitulo: w25     
+          ClassValor:  mays
+        Columna3:
+          Nombre: Regadío
+          Valor: superficieregadio  
+          ClassTitulo: w25    
+          ClassValor:  mays
+    Tabla10:
+      Titulo: PAC. SUPERFICIE TOTAL DE LAS PARCELAS DE SECANO Y REGADÍO
+      Tipo: Virtuoso
+      Query: SELECT ?fecha SUM(?superficiesecano) as ?superficiesecano SUM(?superficieregadio) as ?superficieregadio FROM <http://opendata.aragon.es/def/ei2a/pac> { ?s <http://opendata.aragon.es/def/ei2a#dryOrIrrigated> ?patata OPTIONAL{?s <http://opendata.aragon.es/def/ei2a#dryOrIrrigated> 'Secano'. ?s <http://opendata.aragon.es/def/ei2a#surface> ?superficiesecano. } OPTIONAL{?s <http://opendata.aragon.es/def/ei2a#dryOrIrrigated> 'Regadío'. ?s <http://opendata.aragon.es/def/ei2a#surface> ?superficieregadio. } ?s <http://purl.org/dc/elements/1.1/date> ?fecha. ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?o . filter(?o = <%s>) }order by asc(?fecha)
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Año
+          Valor: fecha
+        Columna2:
+          Nombre: Secano
+          Valor: superficiesecano  
+          ClassTitulo: w25     
+          ClassValor:  mays
+        Columna3:
+          Nombre: Regadío
+          Valor: superficieregadio  
+          ClassTitulo: w25    
+          ClassValor:  mays 
+PanelLateral:
+  ListaEnlaces:
+    ListaEnlace1:
+      Titulo: Más información
+      Tipo: gadget-masinfo
+      Enlaces:        
+        Enlace1:
+          Texto: Presupuesto
+          url: https://presupuesto.aragon.es/municipios/%s
+          CampoUrl: http://opendata.aragon.es/def/ei2a#organizationName
+          SinAcentosUrl: True
+        Enlace2:
+          Texto: Datos en Aragón Open Data
+          url: https://opendata.aragon.es/datos/catalogo/dataset/datos-municipio-%s
+          CampoUrl: http://opendata.aragon.es/def/ei2a#organizationName
+          SinAcentosUrl: True
+        Enlace3:
+          Texto: ELDA. Datos estadísticos
+          url: %s?api_key=e103dc13eb276ad734e680f5855f20c6&_view=completa
+          CampoUrl: http://www.w3.org/2002/07/owl#sameAs
+    ListaEnlace2:
+      Titulo: Enlaces de interes 
+      #gadget-iconos gadget-enlaces gadget-masinfo
+      Tipo: gadget-enlaces
+      Enlaces:
+        Enlace1:
+          Texto: Ver ordenanzas fiscales municipales de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Entidades&&&filt=Tipos__dc%%3Atype__<http%%3A%%2F%%2Fopendata.aragon.es%%2Fdef%%2Fei2a%%23ordenanza_fiscal_municipio>____Ordenanza+Fiscal+Municipio
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace2:
+          Texto: Ver ordenanzas Generales municipales de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Entidades&&filt=Tipos__dc%%3Atype__<http%%3A%%2F%%2Fopendata.aragon.es%%2Fdef%%2Fei2a%%23ordenanza_general_municipio>____Ordenanza+General+Municipio
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace3:
+          Texto: Ver información turística de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: filtros?tem=4&stem=&pro=&com=&mun=%s&ent=&sent=&from=Temas
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace5:
+          Texto: Ver datos del Instituto Aragonés del Agua de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=104&sent=&from=Entidades
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace6:
+          Texto: Ver rutas de autobús de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName   
+          url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=121&sent=&from=Entidades
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+  Texto: 
+    Tipo: HTML
+    Query: select replace(replace(replace(replace(lcase(?campo)," ","-"),"ñ","n"),"ü","u"),",","") where { ?s <http://opendata.aragon.es/def/ei2a#organizationName> ?name. ?s <http://purl.org/dc/elements/1.1/identifier> ?identifier. filter (?s = <%s>) bind(concat(?name, '-id', ?identifier) as ?campo)}
+    Campo: uri
+    Html: <iframe title="aemet" display="none" class="movil" width="405px" height="205px" src="https://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s?w=g2p01110001ohmffffffw320z200x4f86d9t95b6e9r1s8n2"></iframe>

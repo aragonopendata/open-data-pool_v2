@@ -1,0 +1,34 @@
+BodyClass: fichaComunidad fichaLugar
+PanelCentral:
+ #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#nameDocument
+  #Texto: 
+  #Tipo: HTML
+  #Query: select lcase(?campo)  where { ?s <http://opendata.aragon.es/def/ei2a#OrganizationName> ?name. ?s <http://purl.org/dc/elements/1.1/identifier> ?identifier. filter (?s = <%s>) bind(concat(?name, '-id', ?identifier) as ?campo)}
+  #  Campo: uri
+  #  Html: <iframe width="620px" height="200px" src="http://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s"></iframe>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select ?sitio ?nombre ?observacion ?municipio ?tipo where{<%s> <http://opendata.aragon.es/def/ei2a#nameDocument> ?nombre . optional{<%s> <http://opendata.aragon.es/def/ei2a#documentType> ?tipo. } optional{<%s> <http://opendata.aragon.es/def/ei2a#registrationDate> ?fechareg. } optional{<%s> <http://opendata.aragon.es/def/ei2a#startDate> ?fechaini.} optional{ <%s> <http://opendata.aragon.es/def/ei2a#observations> ?observacion.} optional{<%s> <http://opendata.aragon.es/def/ei2a#URIDocument> ?sitio.} <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?location. ?location <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio.}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Nombre
+          Valor: nombre
+        Campo2:
+          Nombre: Tipo        
+          Valor: tipo
+        Campo3:
+          Nombre: Municipio
+          Valor: municipio
+        Campo5:
+          Nombre: Observaciones
+          Valor: observacion
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio</a>

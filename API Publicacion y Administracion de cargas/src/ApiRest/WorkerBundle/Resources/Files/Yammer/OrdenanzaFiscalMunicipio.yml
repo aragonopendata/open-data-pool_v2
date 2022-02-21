@@ -1,0 +1,97 @@
+BodyClass: fichaComunidad fichaOrdenazaFiscalMunicipio
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#nameDocument
+  Texto:
+    Tipo: HTML
+    Query: select SUBSTR( str(?sameas), 64) as ?s where { ?s2 <http://www.w3.org/2002/07/owl#sameAs> ?sameas. filter (?s2 = <%s>)}
+    Campo: uri
+    Html: <a href="http://servicios.aragon.es/portalAALL/document.do?clobId=%s">Descárgate la ordenanza</a>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?nombreMunicipio ?texto ?fechaPublicacion ?fechaAprobacion ?tipo   where { optional {?ordenanza <http://opendata.aragon.es/def/ei2a#nameDocument> ?texto .} optional {?ordenanza <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?localidad . ?localidad <http://opendata.aragon.es/def/ei2a#organizationName> ?nombreMunicipio .} optional {?ordenanza <http://opendata.aragon.es/def/ei2a#registrationDate> ?fechaPublicacion .} optional {?ordenanza <http://opendata.aragon.es/def/ei2a#startDate> ?fechaAprobacion .} optional {?ordenanza <http://opendata.aragon.es/def/ei2a#documentType> ?tipo .} filter(?ordenanza = <%s>)}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Municipio
+          Valor: nombreMunicipio
+        Campo2:
+          Nombre: Fecha de publicación
+          Valor: fechaPublicacion
+        Campo3:
+          Nombre: Fecha de aprobación
+          Valor: fechaAprobacion
+        Campo4:
+          Nombre: Subtipo
+          Valor: tipo
+    CampoValor2:
+      Tipo: Api
+      Oculto: True
+      OcultoTexto : Ver resto de fechas de la ordenanza
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Fecha de acuerdo de aprobación definitiva 
+          Valor: F_ACUERDO_APRO_DEF
+        Campo2:
+          Nombre: Fecha de publicación de aprobación definitiva 
+          Valor: F_PUBLICACION_APRO_DEF
+        Campo3:
+          Nombre: Año
+          Valor: ANO
+        Campo4:
+          Nombre: Fecha de acuerdo de aprobación inicial de la modificación
+          Valor: F_ACUERDO_APRO_INI_MOD
+        Campo4:
+          Nombre: Fecha de publicación de apobación inicial de la modificación
+          Valor: F_PUBLICACION_APRO_INI_MOD
+        Campo5:
+          Nombre: Fecha de acuerdo de apobación definitiva de la modificación
+          Valor: F_ACUERDO_APRO_DEF_MOD
+        Campo6:
+          Nombre: Fecha de publicación de apobación definitiva de la modificación
+          Valor: F_PUBLICACION_APRO_DEF_MOD
+    CampoValor3:
+      Tipo: Api
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Oculto: False
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: TEXTO MODIFICACION
+          Valor: TEXTOMODIFICACION
+          Class: dato dato-texto info
+PanelLateral:
+  ListaContextos:
+    ListaContexto1:
+      Titulo: Otras ordenanzas fiscales de %s
+      CampoParseo: 
+        Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+        Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#nameDocument> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?ordenanzaOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#ordenanza_fiscal_municipio> . filter(?ordenanzaOriginal = <%s>)} LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Lugares&filt=Tipos__dc%3Atype__%3Chttp%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23ordenanza_fiscal_municipio%3E__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location     
+    ListaContexto2:
+      Titulo: Ordenanzas generales de %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where  {?url <http://opendata.aragon.es/def/ei2a#nameDocument> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?ordenanzaOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#ordenanza_general_municipio> .filter(?ordenanzaOriginal = <%s>) } LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos
+      #gadget-iconos gadget-enlaces gadget-masinfo      
+      EnlaceVerMas:
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Lugares&filt=Tipos__dc%3Atype__%3Chttp%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23ordenanza_general_municipio%3E__
+        CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location

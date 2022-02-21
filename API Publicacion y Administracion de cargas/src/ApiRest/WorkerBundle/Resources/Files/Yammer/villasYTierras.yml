@@ -1,0 +1,55 @@
+BodyClass: fichaComunidad fichaOrganizacion
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#organizationName
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select substr(str(?location),46) as ?idmunicipio ?municipio ?telefono ?email ?cif ?fax ?direccion ?cp where{<%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?location. ?location <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio .  <%s> <http://opendata.aragon.es/def/ei2a#CIF> ?cif. <%s> <http://opendata.aragon.es/def/ei2a#phone> ?telefono . <%s> <http://www.w3.org/ns/org#hasSite> ?hassite. ?hassite <http://www.w3.org/ns/org#siteAddress> ?siteaddress. ?siteaddress <http://www.w3.org/2006/vcard/ns#Fax> ?fax. <%s> <http://xmlns.com/foaf/0.1/mbox> ?email. <%s> <http://www.w3.org/ns/org#hasSite> ?hassite. ?hassite <http://www.w3.org/ns/org#siteAddress> ?siteaddress. ?siteaddress <http://www.w3.org/2006/vcard/ns#hasAddress> ?hasaddress . ?hasaddress <http://www.w3.org/2006/vcard/ns#street-address> ?direccion. <%s> <http://www.w3.org/ns/org#hasSite> ?hassite. ?hassite <http://www.w3.org/ns/org#siteAddress> ?siteaddress. ?siteaddress <http://www.w3.org/2006/vcard/ns#hasAddress> ?hasaddress . ?hasaddress <http://www.w3.org/2006/vcard/ns#postal-code> ?cp.}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Municipio
+          Valor: municipio
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio
+        Campo2:
+          Nombre: CIF
+          Valor: cif
+        Campo3:
+          Nombre: Teléfono
+          Valor: telefono
+        Campo4:
+          Nombre: Fax
+          Valor: fax
+        Campo5:
+          Nombre: Dirección
+          Valor: direccion
+        Campo7:
+          Nombre: CP
+          Valor: cp
+        Campo6: 
+          Nombre: Email
+          Valor: email
+          Url: mailto:%s
+          CampoUrl: email
+    CampoValor2:
+      Tipo: Api
+      Oculto: True
+      OcultoTexto : Ver resto de fechas de la ordenanza
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Finalidad
+          Valor: Finalidad
+        Campo2:
+          Nombre: Presidente
+          Valor: Presidente
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio</a>

@@ -1,0 +1,96 @@
+BodyClass: fichaComunidad fichaOrganizacion
+PanelCentral:
+ #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#organizationName
+  #Texto: 
+  #Tipo: HTML
+  #Query: select lcase(?campo)  where { ?s <http://opendata.aragon.es/def/ei2a#OrganizationName> ?name. ?s <http://purl.org/dc/elements/1.1/identifier> ?identifier. filter (?s = <%s>) bind(concat(?name, '-id', ?identifier) as ?campo)}
+  #  Campo: uri
+  #  Html: <iframe width="620px" height="200px" src="http://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s"></iframe>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select ?nombreEstablecimiento ?municipio substr(str(?location),46) as ?idmunicipio ?direccion ?cp ?telefono  where{ optional{<%s> <http://opendata.aragon.es/def/ei2a#organizationName> ?nombreEstablecimiento} . optional{<%s> <http://www.w3.org/ns/org#hasSite> ?site. ?site <http://www.w3.org/ns/org#siteAddress> ?vcard. ?vcard <http://www.w3.org/2006/vcard/ns#hasAddress> ?card. ?card  <http://www.w3.org/2006/vcard/ns#street-address> ?direccion.}  optional{<%s> <http://opendata.aragon.es/def/ei2a#phone> ?telefono.}optional{<%s> <http://www.w3.org/ns/org#hasSite> ?site. ?site <http://www.w3.org/ns/org#siteAddress> ?vcard. ?vcard <http://www.w3.org/2006/vcard/ns#hasAddress> ?card. ?card <http://www.w3.org/2006/vcard/ns#postal-code> ?cp.} <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?location . ?location <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio.}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Nombre del establecimiento
+          Valor: nombreEstablecimiento         
+        Campo2:
+          Nombre: Dirección
+          Valor: direccion
+        Campo3:
+          Nombre: Código Postal
+          Valor: cp
+        Campo7:
+          Nombre: Municipio
+          Valor: municipio
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio
+        Campo4:
+          Nombre: Telefono
+          Valor: telefono
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Fecha de alta 
+          Valor: FECHA_ALTA
+        Campo2:
+          Nombre: Fecha de baja
+          Valor: FECHA_BAJA
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio</a>
+  ListaContextos:
+    ListaContexto1:
+      Titulo: Otras agencias de viajes de %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#organizationName> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?restauranteOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#agencia_viaje> . filter(?restauranteOriginal = <%s>)} LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos-hoteles
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=$s&ent=1&sent=&from=Entidades&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23agencia_viaje>__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location     
+    ListaContexto2:
+      Titulo: Hoteles en %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#organizationName> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?restauranteOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#alojamiento_hotelero> . filter(?restauranteOriginal = <%s>)} LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos-hoteles
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=50297&ent=1&sent=&from=Entidades&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23alojamiento_hotelero>____Alojamientos+hoteleros
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location  
+    ListaContexto3:
+      Titulo: Albergues y refugios en %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#organizationName> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?restauranteOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#albergue_refugio> . filter(?restauranteOriginal = <%s>)} LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos-hoteles
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=50297&ent=1&sent=&from=Entidades&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23albergue_refugio>__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location  
+          
+          

@@ -1,0 +1,43 @@
+BodyClass: fichaComunidad fichaOrdenazaGeneralComarca
+PanelCentral:
+  #titulo del panel
+  Titulo: http://purl.org/dc/elements/1.1/title
+  Mapa: 
+        Tipo: open
+        Marker: markerParda.png
+        Zoom: 7
+        Marcadores: 
+          Query: select  distinct ?lat ?long ?title where {?expedicion <http://vocab.gtfs.org/terms#route> ?route . ?horarioParada <http://vocab.gtfs.org/terms#trip> ?expedicion. ?horarioParada <http://vocab.gtfs.org/terms#stop> ?parada.?parada <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ?lat. ?parada <http://www.w3.org/2003/01/geo/wgs84_pos#long> ?long.  optional {?parada <http://purl.org/dc/elements/1.1/title> ?title.} filter(?route = <%s>)} 
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select substr(str(?location),46) as ?idmunicipio substr(str(?locationDes),46) as ?idmunicipioDes substr(str(?ori),54) as ?idparada  substr(str(?st),54) as ?iddest ?parada ?municipio ?municipioDes ?destino where{  <%s> <http://vocab.gtfs.org/terms#originStop> ?ori. ?ori <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?location. ?location <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio . <%s> <http://vocab.gtfs.org/terms#originStop> ?ori. ?ori <http://purl.org/dc/elements/1.1/title> ?parada. optional{<%s> <http://vocab.gtfs.org/terms#destinationStop> ?st. ?st <http://purl.org/dc/elements/1.1/title> ?destino.   <%s> <http://vocab.gtfs.org/terms#destinationStop> ?dest. ?dest <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?locationDes. ?locationDes <http://opendata.aragon.es/def/ei2a#organizationName> ?municipioDes . }}
+      Campo: uri
+      Campos:
+        Campo2:
+          Nombre: Parada Origen
+          Valor: parada
+          Url: /pool/detalles?url=transporte-parada-%s
+          CampoUrl: idparada
+        Campo1:
+          Nombre: Municipio Origen
+          Valor: municipio
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio      
+        Campo3:
+          Nombre: Parada Destino
+          Valor: destino
+          Url: /pool/detalles?url=transporte-parada-%s
+          CampoUrl: iddest
+        Campo4:
+          Nombre: Municipio Destino
+          Valor: municipioDes
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipioDes
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio Origen</a>

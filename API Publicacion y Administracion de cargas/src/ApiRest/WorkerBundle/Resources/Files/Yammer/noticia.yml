@@ -1,0 +1,21 @@
+BodyClass: fichaComunidad fichaOrdenanza
+PanelCentral:
+  Titulo: http://opendata.aragon.es/def/ei2a#nameDocument
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?enlace ?sitioweb ?tipo ?descripcion where{bind('Accede al sitio web' as ?enlace) <%s> <http://opendata.aragon.es/def/ei2a#observations> ?descripcion. <%s> <http://opendata.aragon.es/def/ei2a#documentType> ?tipo. <%s> <http://opendata.aragon.es/def/ei2a#URIDocument> ?sitioweb.}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Descripción
+          Valor: descripcion       
+        Campo2:
+          Nombre: Tipo 
+          Valor: tipo
+        Campo3:
+          Nombre: Sitio web
+          Valor: enlace
+          Url: %s
+          CampoUrl: sitioweb        

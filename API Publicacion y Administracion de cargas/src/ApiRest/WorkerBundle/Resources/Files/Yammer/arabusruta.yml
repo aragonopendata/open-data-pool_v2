@@ -1,0 +1,53 @@
+BodyClass: fichaComunidad fichaHotel
+PanelCentral:
+  #titulo del panel
+  Titulo: http://purl.org/dc/elements/1.1/title
+  Mapa: 
+        Tipo: open
+        Marker: markerParda.png
+        Zoom: 7
+        Marcadores: 
+          Query: select distinct ?lat ?long ?title  ?secuence where { ?stop <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ?lat. ?stop <http://www.w3.org/2003/01/geo/wgs84_pos#long> ?long. { ?stopTime <http://vocab.gtfs.org/terms#stop> ?stop. ?stopTime <http://vocab.gtfs.org/terms#trip> ?trip. ?trip <http://vocab.gtfs.org/terms#route> ?route. } union { ?route <http://vocab.gtfs.org/terms#destinationStop> ?stop. } union { ?route <http://vocab.gtfs.org/terms#originStop> ?stop. } optional {?stop <http://purl.org/dc/elements/1.1/title> ?title.} filter(?route = <%s>) .}
+          Campo: uri       
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?municipio substr(str(?location),46) as ?idmunicipio  where{ <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?location. ?location <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio .}
+      Campo: uri
+      Campos:
+        Campo3:
+          Nombre: Municipio
+          Valor: municipio
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Origen
+          Valor: ORIGEN
+        Campo2: 
+          Nombre: Destino
+          Valor: DESTINO
+  Tablas:
+    Tabla1:
+      Titulo: Expediciones
+      Tipo: Virtuoso
+      Query: select distinct ?expedicion substr(str(?s),47) as ?idexpedicion where {?s <http://vocab.gtfs.org/terms#route> ?o. ?s <http://purl.org/dc/elements/1.1/identifier> ?expedicion. filter (?o = <%s>)}
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Expediciones
+          Valor: expedicion
+          Url: /pool/detalles?url=expedicion-%s
+          CampoUrl: idexpedicion
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio</a>

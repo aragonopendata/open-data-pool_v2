@@ -1,0 +1,49 @@
+BodyClass: fichaComunidad fichaOrganizacion
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#organizationName
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?telefono substr(str(?muni),46) as ?idmunicipio ?cif ?fax ?direccion ?municipio where{ <%s> <http://opendata.aragon.es/def/ei2a#CIF> ?cif . optional {<%s> <http://opendata.aragon.es/def/ei2a#phone> ?telefono.}  <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?muni. ?muni <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio.  }
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: CIF 
+          Valor: cif
+        Campo2:
+          Nombre: Teléfono
+          Valor: telefono
+        Campo4:
+          Nombre: Fax
+          Valor: fax
+        Campo3:
+          Nombre: Municipio
+          Valor: municipio   
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio          
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Fax
+          Valor: FAX
+        Campo2: 
+          Nombre: Dirección
+          Valor: DIRECCION
+        Campo4:
+          Nombre: CP
+          Valor: CP         
+        Campo3:
+          Nombre: Presidente
+          Valor: PRESIDENTE
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio</a>

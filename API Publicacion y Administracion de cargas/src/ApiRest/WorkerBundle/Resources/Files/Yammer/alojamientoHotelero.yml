@@ -1,0 +1,117 @@
+BodyClass: fichaComunidad fichaLugar
+PanelCentral:
+ #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#organizationName
+  #Texto: 
+  #Tipo: HTML
+  #Query: select lcase(?campo)  where { ?s <http://opendata.aragon.es/def/ei2a#OrganizationName> ?name. ?s <http://purl.org/dc/elements/1.1/identifier> ?identifier. filter (?s = <%s>) bind(concat(?name, '-id', ?identifier) as ?campo)}
+  #  Campo: uri
+  #  Html: <iframe width="620px" height="200px" src="http://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s"></iframe>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select ?nombreEstablecimiento ?cif ?direccion ?cp ?nombreComarca ?telefono ?email ?nombreMunicipio ?sitioWeb substr(str(?muni),46) as ?idmunicipio  where{ <%s> ei2a:organizationName ?nombreEstablecimiento. optional{ <%s> <http://protege.stanford.edu/rdf/HTOv4002#legalIdentifier> ?legali .} optional{?legali <http://protege.stanford.edu/rdf/HTOv4002#identifierValue> ?cif .} optional {<%s> <http://protege.stanford.edu/rdf/HTOv4002#location> ?location. ?location <http://protege.stanford.edu/rdf/HTOv4002#address> ?address. ?address <http://protege.stanford.edu/rdf/HTOv4002#postCode> ?cp. } optional {<%s> <http://protege.stanford.edu/rdf/HTOv4002#location> ?location. ?location <http://protege.stanford.edu/rdf/HTOv4002#address> ?address. ?address <http://protege.stanford.edu/rdf/HTOv4002#streetAddress> ?streetadress . ?streetadress <http://protege.stanford.edu/rdf/HTOv4002#streetName>	?direccion .} optional {<%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?muni. ?muni <http://opendata.aragon.es/def/ei2a#organizationName> ?nombreMunicipio .} optional {<%s> <http://protege.stanford.edu/rdf/HTOv4002#location> ?location. ?location <http://protege.stanford.edu/rdf/HTOv4002#address> ?address. ?address <http://protege.stanford.edu/rdf/HTOv4002#region> ?region . ?region <http://protege.stanford.edu/rdf/HTOv4002#languageText> ?lane. ?lane <http://protege.stanford.edu/rdf/HTOv4002#text> ?nombreComarca. } optional {<%s> <http://protege.stanford.edu/rdf/HTOv4002#location> ?locatione. ?locatione <http://protege.stanford.edu/rdf/HTOv4002#telecoms> ?telecomse. ?telecomse <http://protege.stanford.edu/rdf/HTOv4002#telephone> ?telee. ?telee <http://protege.stanford.edu/rdf/HTOv4002#number> ?telefono . } optional {<%s> <http://protege.stanford.edu/rdf/HTOv4002#location> ?location. ?location <http://protege.stanford.edu/rdf/HTOv4002#telecoms> ?telecoms . ?telecoms <http://protege.stanford.edu/rdf/HTOv4002#url> ?url . ?url <http://protege.stanford.edu/rdf/HTOv4002#languageText> ?lang . ?lang<http://protege.stanford.edu/rdf/HTOv4002#text> ?sitioWeb .} optional {<%s> <http://protege.stanford.edu/rdf/HTOv4002#location> ?location. ?location <http://protege.stanford.edu/rdf/HTOv4002#telecoms> ?telecoms . ?telecoms <http://protege.stanford.edu/rdf/HTOv4002#fax> ?faxx . ?faxx <http://protege.stanford.edu/rdf/HTOv4002#number> ?fax .}optional {<%s> <http://protege.stanford.edu/rdf/HTOv4002#location> ?location. ?location <http://protege.stanford.edu/rdf/HTOv4002#telecoms> ?telecoms . ?telecoms <http://protege.stanford.edu/rdf/HTOv4002#email> ?email.}}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Nombre del establecimiento
+          Valor: nombreEstablecimiento
+        Campo2:
+          Nombre: CIF de la empresa
+          Valor: cif
+        Campo3:
+          Nombre: Dirección
+          Valor: direccion
+        Campo4:
+          Nombre: Código Postal
+          Valor: cp
+        Campo5:
+          Nombre: Comarca
+          Valor: nombreComarca
+          
+        Campo6:
+          Nombre: Municipio        
+          Valor: nombreMunicipio
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio
+        Campo7:
+          Nombre: Teléfono        
+          Valor: telefono
+        Campo8:
+          Nombre: Fax
+          Valor: fax
+        Campo9:
+          Nombre: Email
+          Valor: email
+          Url: mailto:%s
+          CampoUrl: email
+        Campo10:
+          Nombre: Sitio Web
+          Valor: sitioWeb  
+          Url: http://%s
+          CampoUrl: sitioWeb
+  Tablas:
+    Tabla1:
+      Tipo: Virtuoso       
+      Descripcion: 
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select  ?fieldName ?num  where {	optional{<%s> ei2a:organizationName ?nombreEstablecimiento . } optional{<%s> <http://protege.stanford.edu/rdf/HTOv4002#profile> ?profile . ?profile <http://protege.stanford.edu/rdf/HTOv4002#profileField> ?sitio . ?sitio <http://protege.stanford.edu/rdf/HTOv4002#fieldValue> ?num . ?sitio <http://protege.stanford.edu/rdf/HTOv4002#fieldName> ?fieldName}  }
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: 
+          Valor: fieldName
+        Columna2:
+          Nombre: Número
+          Valor: num
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio</a>
+  ListaContextos:
+    ListaContexto1:
+      Titulo: Otros alojamientos hoteleros de %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#organizationName> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?restauranteOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#alojamiento_hotelero> . filter(?restauranteOriginal = <%s>)} LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=1&sent=&from=Entidades&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23alojamiento_hotelero>__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location     
+    ListaContexto2:
+      Titulo: Apartamentos turísticos de %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#organizationName> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?restauranteOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#apartamento_turistico> . filter(?restauranteOriginal = <%s>)} LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=1&sent=&from=Entidades&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23apartamento_turistico>__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location  
+    ListaContexto3:
+      Titulo: Restaurantes de %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#organizationName> ?name . ?url <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?restauranteOriginal <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?municipio. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#cafeteria_restaurante> . filter(?restauranteOriginal = <%s>)} LIMIT 5     
+      Campo: uri
+      Tipo: gadget-iconos
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=1&sent=&from=Entidades&filt=Tipos__dc%3Atype__<http%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23cafeteria_restaurante>__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location     

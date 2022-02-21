@@ -1,0 +1,14 @@
+BodyClass: fichaComunidad fichaDepuradora
+PanelCentral:
+  #titulo del panel
+  Titulo: http://purl.org/dc/elements/1.1/identifier
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dc:<http://purl.org/dc/elements/1.1/> select distinct ?fecha where { <%s> dc:identifier ?identificador . optional {<%s> dc:date ?fecha .} }
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Fecha
+          Valor: fecha

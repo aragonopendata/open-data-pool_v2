@@ -1,0 +1,22 @@
+BodyClass: fichaComunidad fichaTransporte
+PanelCentral:
+  #titulo del panel
+  Titulo: http://purl.org/dc/elements/1.1/title
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select substr(str(?location),46) as ?idmunicipio ?municipio where{  <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?location. ?location <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio .}
+      Campo: uri
+      Campos:
+        Campo3:
+          Nombre: Municipio
+          Valor: municipio
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio
+PanelLateral:
+  Texto: 
+    Tipo: HTML
+    Query: select ?identifier  where { ?s <http://www.w3.org/2003/01/geo/wgs84_pos#location>  ?municipio. ?municipio dc:identifier ?identifier. filter (?s = <%s>)}
+    Campo: uri
+    Html: <a href="detalles?url=municipio-%s">Ver información del municipio</a>

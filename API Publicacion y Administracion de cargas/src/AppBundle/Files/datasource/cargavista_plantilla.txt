@@ -1,0 +1,15 @@
+{"metadata":[
+	{"name":"nombre","label":"Nombre de carga","datatype":"string","bar":true,"editable":true,"values":null},
+	{"name":"periodicidad","label":"Periodicidad","datatype":"string","bar":true,"editable":true,"values":
+		{
+			"diaria":"Diaria","semanal":"Semanal", "mensual":"Mensual", "anual":"Anual","demanda":"A demanda"}
+		},	
+	{"name":"fecha","label":"Fecha","datatype":"date","bar":true,"editable":true,"values":null},
+	{"name":"hora","label":"Hora","datatype":"time","bar":true,"editable":true,"values":null},
+	{"name":"estado","label":"Estado","datatype":"string","bar":true,"editable":true,"values":null},
+	{"name":"logs","label":"Logs Carga","datatype":"string","bar":true,"editable":true,"values":null},
+	{"name":"archivos","label":"Archivos Carga","datatype":"string","bar":true,"editable":true,"values":null},
+	{"name":"action",  "label":"Acción","datatype":"html","bar":true,"editable":false,"values":null}
+],
+
+%s}

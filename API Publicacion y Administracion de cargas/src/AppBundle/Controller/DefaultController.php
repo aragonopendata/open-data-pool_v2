@@ -1,0 +1,175 @@
+<?php
+
+namespace AppBundle\Controller;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response; 
+
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+
+use ApiRest\AodPoolBundle\Controller\Utility\Trazas;
+
+use Katzgrau\KLogger\Logger;
+use Psr\Log\LogLevel;
+
+class DefaultController extends Controller
+{
+    //clase de trazas
+    protected $trazas=null;
+
+    public function setTrazas($trazas){
+        $this->trazas = $trazas;
+    }
+
+    //directorio de la apliacion
+    protected $appPath=null;
+
+    public function getTrazas(){
+        if (!isset($this->trazas)){
+            $this->appPath = $this->container->getParameter('kernel.root_dir');
+            $directoryPath = str_replace("app","src/ApiRest/AodPoolBundle/Resources/Files/Logs/",$this->appPath);
+            $trazas = new Trazas($directoryPath);
+            $trazas->setClase("DefaultController");
+            $trazasDebug = $this->container->getParameter('api_publicacion')['trazas_debug'];
+            $trazas->setEscribeTrazasDebug($trazasDebug); 
+            $this->SetTrazas($trazas);
+        }
+        return $this->trazas;
+    }
+
+    /**
+     * @Route("/pool-administracion-cargas", name="homepage")
+     */
+    public function indexAction(Request $request)
+    {
+     
+        // replace this example code with whatever you need
+        return $this->render('default/index.html.twig', array(
+            'base_dir' => realpath($this->container->getParameter('kernel.root_dir').'/..').DIRECTORY_SEPARATOR,
+        ));
+       // return $this->render('default/index.html.twig');
+    }
+
+    /**
+     * @Route("/pool-administracion-cargas/cargavistas/damedatos.json", name="damedatos")
+     */
+    public function getDatosAction(Request $request)
+    {
+ 
+        $this->getTrazas()->LineaDebug("getDatosAction","llamada a Función");  
+        $directoryPath = str_replace("app","src/AppBundle/Files/datasource/",$this->appPath);
+        $fileDestino = $directoryPath . "cargavista_plantilla.txt";
+        $this->getTrazas()->LineaDebug("getDatosAction","leo archivo plantilla"); 
+        $data = file_get_contents($fileDestino); 
+
+        $this->getTrazas()->LineaDebug("getDatosAction","Inicializo repositorio tabla cargavistas");
+        $dal = $this->get('Repository_AdminCargas'); 
+        $this->getTrazas()->LineaDebug("getDatosAction","Recojo los datas de la BD en formato JSON");
+        $datos = $dal->GetCargaVistasDataJson();
+        $this->getTrazas()->LineaDebug("getDatosAction","Parseo la plantilla con los datos");
+        $data = sprintf($data,$datos);
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+        return  $response;
+    }
+
+    /**
+     * @Route("/pool-administracion-cargas/cargavistas/borra/{id}", name="borradatos")
+     */
+    public function borraDatosAction($id)
+    {
+        $this->getTrazas()->LineaDebug("borraDatosAction","llamada a Función");  
+        $this->getTrazas()->LineaDebug("borraDatosAction","Inicializo repositorio tabla cargavistas");
+        $dal = $this->get('Repository_AdminCargas'); 
+        $this->getTrazas()->LineaDebug("borraDatosAction","Llamada a función borrado");
+        $datos = $dal->DeleteCargaVistasByCode($id);
+        return $this->render('@ApiRestAodPool/Default/index.html.twig', array("mensaje" =>  "Registro $id Borrado"));  
+    }
+
+    /**
+     * @Route("/pool-administracion-cargas/cargavistas/actualiza/{id}/{nombre}/{valor}", name="actulizaDatos")
+     */
+    public function actulizaDatosAction(Request $request, $id,$nombre,$valor)
+    {
+        $valor = base64_decode($valor);
+        $valor = rawurldecode($valor);
+        if ($valor=="vacio"){
+            $valor="";
+        }
+        if ($nombre=="fecha"){
+            $fecha=str_replace("/","-",$valor);
+            $fechaP = new \DateTime($fecha);
+            $valor = $fechaP->format('Y-m-d');
+        }
+        $this->getTrazas()->LineaDebug("actulizaDatosAction","llamada a Función"); 
+        $this->getTrazas()->LineaDebug("actulizaDatosAction","Recojo Parametros"); 
+        $this->getTrazas()->LineaDebug("actulizaDatosAction","Inicializo repositorio tabla cargavistas");
+        $dal = $this->get('Repository_AdminCargas'); 
+        $this->getTrazas()->LineaDebug("actulizaDatosAction","Llamada a función actualización");
+        $datos = $dal->ActualizaCampoCargaVistas($id,$nombre,$valor);
+        return $this->render('@ApiRestAodPool/Default/index.html.twig', array("mensaje" =>  "Registro  $id Actualizado"));  
+    }
+
+      /**
+     * @Route("/pool-administracion-cargas/cargavistas/inserta/{datos}", name="insertadatos")
+     */
+    public function insertaDatosAction(Request $request, $datos)
+    {
+        $datos = base64_decode($datos);
+        $datos = rawurldecode($datos);
+        $datosArray = explode("|",$datos);
+        $this->getTrazas()->LineaDebug("insertaDatosAction","llamada a Función");  
+        $this->getTrazas()->LineaDebug("insertaDatosAction","Recojo Parametros");  
+        $nombre = $datosArray[0];
+        $periodicidad =$datosArray[1];
+        $criterio=$datosArray[2];
+        $fecha=str_replace("/","-",$datosArray[3]);
+        $fechaP = new \DateTime($fecha);
+        $fecha = $fechaP->format('Y-m-d');
+        $hora=$datosArray[4];
+        $estado=$datosArray[5];
+        $logs=$datosArray[6];
+        $archivos=$datosArray[7];
+        $this->getTrazas()->LineaDebug("insertaDatosAction","Recojo Parametros");
+ 
+        $this->getTrazas()->LineaDebug("insertaDatosAction","Inicializo repositorio tabla cargavistas");
+        $dal = $this->get('Repository_AdminCargas'); 
+        $this->getTrazas()->LineaDebug("insertaDatosAction","Llamada a función actualización");
+        $datos = $dal->InsertaCargaVistas($nombre,$periodicidad,$criterio,$estado,$logs,$archivos,$fecha,$hora);
+        return $this->render('@ApiRestAodPool/Default/index.html.twig', array("mensaje" =>  "Registro Insertado"));  
+    }
+
+     /**
+     * @Route("/pool-administracion-cargas/cargavistas/verarchivo/{archivo}", name="verarchivo")
+     */
+
+    public function verArchivoAction(Request $request, $archivo)
+    {
+        $archivo = base64_decode($archivo);
+        $archivo = rawurldecode($archivo);
+        $this->getTrazas()->LineaDebug("verArchivoAction","llamada a Función");  
+		
+		if(substr( $archivo, 0, 1 ) != "/")
+        {
+            $archivo = "/" . $archivo;
+        }
+		
+        $archivo = "web" . $archivo;
+        $archivo = str_replace("app",$archivo,$this->appPath);
+	
+        $this->getTrazas()->LineaDebug("verArchivoAction","Recojo Parametros e imprimo archivo ".$archivo ); 
+        if (file_exists($archivo)) {
+            $data = file_get_contents($archivo); 
+        } else {
+            $data="El archivo no existe";
+        }
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'text/plain');
+        return  $response;
+    }
+
+
+}

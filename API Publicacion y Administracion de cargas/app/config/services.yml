@@ -1,0 +1,8 @@
+services:
+    #parameter_name: value
+    Repository_WebConfig:
+        class: ApiRest\AodPoolBundle\Repository\WebConfig
+        arguments: ['@doctrine.orm.entity_manager']
+    Repository_AdminCargas:
+        class: ApiRest\AodPoolBundle\Repository\AdminCargas
+        arguments: ['@doctrine.orm.entity_manager']

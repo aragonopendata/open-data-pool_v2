@@ -1,0 +1,45 @@
+BodyClass: fichaComunidad fichaOrdenanza
+PanelCentral:
+  Titulo: http://opendata.aragon.es/def/ei2a#nameDocument
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?provincia ?tipo substr(str(?localidad),46) as ?idmunicipio ?municipio ?observacion where{<%s> <http://opendata.aragon.es/def/ei2a#documentType> ?tipo. <%s> <http://opendata.aragon.es/def/ei2a#observations> ?observacion. <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?localidad. ?localidad <http://opendata.aragon.es/def/ei2a#organizationName> ?municipio. <%s> <http://opendata.aragon.es/def/ei2a#isOfInterestTo> ?int . ?int <http://www.w3.org/2000/01/rdf-schema#label> ?provincia.}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Tipo
+          Valor: tipo
+        Campo2:
+          Nombre: Municipio
+          Valor: municipio
+          Url: /pool/detalles?url=municipio-%s
+          CampoUrl: idmunicipio
+        Campo3:
+          Nombre: Provincia
+          Valor: provincia
+        Campo4:
+          Nombre: Observaciones
+          Valor: observacion          
+    CampoValor2:
+      Tipo: Api
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source .}
+      Oculto: False
+      Campo: uri
+      Campos:
+        Campo2:
+          Nombre: Año
+          Valor: ANYO
+        Campo3:
+          Nombre: Año de devolución
+          Valor: ANYO_DEVOLUCION
+        Campo4:
+          Nombre: Total rentas
+          Valor: TOTAL_RENTAS
+        Campo5:
+          Nombre: Total importes
+          Valor: TOTAL_IMPORTES
+        Campo6:
+          Nombre: Total devolución
+          Valor: TOTAL_DEVOLUCION

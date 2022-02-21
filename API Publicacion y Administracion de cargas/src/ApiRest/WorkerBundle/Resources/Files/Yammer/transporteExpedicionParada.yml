@@ -1,0 +1,44 @@
+BodyClass: fichaComunidad fichaLugar
+PanelCentral:
+      Titulo: http://purl.org/dc/elements/1.1/identifier
+      CampoValores: 
+        CampoValor1: 
+          Tipo: Virtuoso
+          Oculto: False
+          Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?mun ?parada substr(str(?loca),46) as ?idmunicipio substr(str(?stop),54) as ?idparada where{<%s> <http://vocab.gtfs.org/terms#stop> ?stop. ?stop <http://purl.org/dc/elements/1.1/title> ?parada. <%s> <http://vocab.gtfs.org/terms#stop> ?stop. ?stop <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?loca . ?loca <http://opendata.aragon.es/def/ei2a#organizationName> ?mun }
+          Campo: uri
+          Campos: 
+            Campo1: 
+              Nombre: Parada
+              Valor: parada
+              Url: /pool/detalles?url=transporte-parada-%s
+              CampoUrl: idparada
+            Campo2: 
+              Nombre: Municipio
+              Valor: mun    
+              Url: /pool/detalles?url=municipio-%s
+              CampoUrl: idmunicipio
+      Tablas: 
+        Tabla1: 
+          Tipo: Virtuoso
+          Oculto: False
+          Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX org:<http://www.w3.org/ns/org#> PREFIX foaf:<http://xmlns.com/foaf/0.1/> PREFIX vcard:<http://www.w3.org/2006/vcard/ns#> select ?mun ?nombrut  substr(str(?loca),46) as ?idmunicipio where {optional{<%s> <http://vocab.gtfs.org/terms#trip> ?trip. ?trip <http://vocab.gtfs.org/terms#route> ?ruta . ?ruta <http://purl.org/dc/elements/1.1/title> ?nombrut. }optional{<%s> <http://vocab.gtfs.org/terms#trip> ?trip. ?trip <http://vocab.gtfs.org/terms#route> ?ruta . ?ruta <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?loca. ?loca <http://opendata.aragon.es/def/ei2a#organizationName> ?mun.}}
+          Campo: uri
+          Columnas: 
+            Columna1: 
+              Nombre: Municipio
+              Valor: mun
+              Url: /pool/detalles?url=municipio-%s
+              CampoUrl: idmunicipio
+            Columna2: 
+              Nombre: Ruta
+              Valor: nombrut
+PanelLateral: 
+      Texto: 
+        Tipo: HTML
+        Query: select ?identifier  where { ?s <http://vocab.gtfs.org/terms#trip> ?trip . ?trip <http://vocab.gtfs.org/terms#route> ?ruta . ?ruta <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?loca. ?loca  dc:identifier ?identifier. filter (?s = <%s>)}
+        Campo: uri
+        Html: <a href=\detalles?url=municipio-%s\>Ver información del municipio Ruta</a>
+      
+    
+  

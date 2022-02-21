@@ -1,0 +1,42 @@
+BodyClass: fichaComunidad fichaOrdenanza
+PanelCentral:
+  #titulo del panel
+  Titulo: http://purl.org/dc/elements/1.1/identifier
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select substr(str(?muni),53) as ?idvilla ?villa where{   <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?muni. ?muni <http://opendata.aragon.es/def/ei2a#organizationName> ?villa.  }
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Lugar
+          Valor: villa
+          Url: /pool/detalles?url=villas-y-tierras-%s
+          CampoUrl: idvilla
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo2: 
+          Nombre: Año
+          Valor: ANO
+        Campo3:
+          Nombre: Fecha de aprobación
+          Valor: F_APROBACION_INI         
+        Campo4:
+          Nombre: Fecha de publicación
+          Valor: F_PUBLICACION_INI
+  Tablas:     
+    Tabla1:
+      Tipo: Virtuoso       
+      Descripcion: Plantillas y años
+      Query:  select ?nombre where {	<%s> <http://opendata.aragon.es/def/ei2a#nameDocument> ?nombre.}
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Plantilla
+          Valor: nombre
+          

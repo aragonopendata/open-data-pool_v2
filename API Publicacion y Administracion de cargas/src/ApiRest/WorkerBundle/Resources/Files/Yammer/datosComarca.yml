@@ -1,0 +1,84 @@
+BodyClass: fichaComunidad fichaLugar
+BodyClass: fichaComunidad fichaLugar
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#organizationName
+  Mapa:
+    Tipo: idearagon 
+    Valor: https://idearagon.aragon.es/visor/index.html?HERRAMIENTAS=NO&ACTIVELAYER=Comarca&QUERY=objectid=%s
+    Campo: http://purl.org/dc/elements/1.1/identifier
+    Campo: uri
+  Texto: 
+    Tipo: HTML
+    Query: select lcase(?campo)  where where {?s ?p ?o. ?s <http://www.w3.org/ns/org#hasSite> ?o2. ?o2 <http://www.w3.org/ns/org#siteAddress> ?o3. ?o3 <http://www.w3.org/2006/vcard/ns#hasAddress> ?o4. ?o4 <http://www.w3.org/2006/vcard/ns#locality> ?nombre. ?om <http://purl.org/dc/elements/1.1/type>	<http://opendata.aragon.es/def/ei2a#municipio>. ?om <http://opendata.aragon.es/def/ei2a#organizationName> ?nombre. ?om <http://purl.org/dc/elements/1.1/identifier> ?id.filter (?s = <%s>) bind(concat(?nombre, '-id', ?id) as ?campo)}
+    Campo: uri
+    Html: <iframe width="620px" height="200px" src="http://www.aemet.es/es/eltiempo/prediccion/municipios/mostrarwidget/%s"></iframe>
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: select ?cif ?nombreComarca ?telefono ?email ?capital where{ ?s <http://opendata.aragon.es/def/ei2a#CIF> ?cif. ?s <http://opendata.aragon.es/def/ei2a#organizationName> ?nombreComarca. ?s <http://opendata.aragon.es/def/ei2a#phone> ?telefono. ?s <http://xmlns.com/foaf/0.1/mbox> ?email.  filter(?s= <%s>)}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: CIF
+          Valor: cif
+        Campo2:
+          Nombre: Comarca
+          Valor: nombreComarca
+        Campo3:
+          Nombre: Telefono
+          Valor: telefono      
+        Campo5:
+          Nombre: Email
+          Valor: email
+          Url: mailto:%s
+          CampoUrl: email
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Presidente        
+          Valor: PRESIDENTE
+        Campo2:
+          Nombre: Dirección        
+          Valor: DIRECCION
+PanelLateral:
+  ListaEnlaces:
+    ListaEnlace1:
+      Titulo: Más información
+      Tipo: gadget-masinfo
+      Enlaces:        
+        Enlace1:
+          Texto: Presupuesto
+          url: https://presupuesto.aragon.es/comarcas/%s
+          CampoUrl: http://opendata.aragon.es/def/ei2a#organizationName
+          SinAcentosUrl: True
+        Enlace2:
+          Texto: Datos en Aragón Open Data
+          url: https://opendata.aragon.es/datos/catalogo/dataset/datos-comarca-%s
+          CampoUrl: http://opendata.aragon.es/def/ei2a#organizationName
+          SinAcentosUrl: True
+        Enlace3:
+          Texto: ELDA. Datos estadísticos
+          url: %s?api_key=e103dc13eb276ad734e680f5855f20c6&_view=completa
+          CampoUrl: http://www.w3.org/2002/07/owl#sameAs
+          
+    ListaEnlace2:
+      Titulo: Enlaces de interes 
+      #gadget-iconos gadget-enlaces gadget-masinfo
+      Tipo: gadget-enlaces
+      Enlaces:
+        Enlace1:
+          Texto: Ver ordenanzas fiscales comarcales de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: filtros?tem=&stem=&pro=&com=%s&mun=&ent=46&sent=&from=Entidades&&&filt=Tipos__dc%%3Atype__<http%%3A%%2F%%2Fopendata.aragon.es%%2Fdef%%2Fei2a%%23ordenanza_fiscal_comarca>____Ordenanza+Fiscal+Comarca
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier
+        Enlace2:
+          Texto: Ver ordenanzas Generales comarcales de %s
+          CampoTexto: http://opendata.aragon.es/def/ei2a#organizationName
+          url: filtros?tem=&stem=&pro=&com=%s&mun=&ent=46&sent=&from=Entidades&&filt=Tipos__dc%%3Atype__<http%%3A%%2F%%2Fopendata.aragon.es%%2Fdef%%2Fei2a%%23ordenanza_general_comarca>____Ordenanza+General+Comarca
+          CampoUrl: http://purl.org/dc/elements/1.1/identifier

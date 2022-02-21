@@ -1,0 +1,8 @@
+services:
+ #   aodPool_form_type:
+ #       class: ApiRest\AodPoolBundle\Form\Type\PublicacionPoolType
+ #       arguments:
+ #           - '%aodPool_options%'
+ #       tags:
+ #           - {name: form.type }
+    

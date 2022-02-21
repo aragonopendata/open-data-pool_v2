@@ -1,0 +1,29 @@
+BodyClass: fichaComunidad fichaPersona
+PanelCentral:
+  Titulo: http://opendata.aragon.es/def/ei2a#fullName
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX org:<http://www.w3.org/ns/org#> PREFIX person:<http://www.w3.org/ns/person#> select ?partido where { <%s> <http://www.w3.org/ns/person#memberOf> ?member. ?member <http://opendata.aragon.es/def/ei2a#organizationName> ?partido. }
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Partido
+          Valor: partido
+  Tablas:
+    Tabla1:
+      Titulo: Cargo
+      Tipo: Virtuoso
+      Query: select ?lugar substr(str(?org),36) as ?idlugar ?cargo where{<%s> <http://www.w3.org/ns/org#hasMembership> ?member. ?member <http://www.w3.org/ns/org#organization> ?org. ?org <http://opendata.aragon.es/def/ei2a#organizationName> ?lugar. ?member <http://www.w3.org/ns/org#role> ?rol. ?rol <http://opendata.aragon.es/def/ei2a#roleName> ?cargo.}
+      Campo: uri
+      Columnas:
+        Columna1:
+          Nombre: Lugar
+          Valor: lugar
+          Url: /pool/detalles?url=%s
+          CampoUrl: idlugar
+        Columna2:
+          Nombre: Cargo en el lugar
+          Valor: cargo
+          

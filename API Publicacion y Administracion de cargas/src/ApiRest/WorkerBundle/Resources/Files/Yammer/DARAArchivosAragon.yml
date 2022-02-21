@@ -1,0 +1,24 @@
+BodyClass: fichaComunidad fichaOrdenanza
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#nameDocument
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select ?telefono ?tipo where{<%s> <http://opendata.aragon.es/def/ei2a#documentType> ?tipo.}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Tipo 
+          Valor: tipo   
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Título
+          Valor: TITLE
+        

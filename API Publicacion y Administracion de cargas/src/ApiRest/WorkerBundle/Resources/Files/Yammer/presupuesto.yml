@@ -1,0 +1,26 @@
+BodyClass: fichaComunidad fichaOrdenanza
+PanelCentral:
+  Titulo: http://opendata.aragon.es/def/ei2a#documentType   
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select  ?municipio ?sociedad where{   <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?muni. ?muni <http://www.w3.org/ns/org#hasSite> ?hassite. ?hassite <http://www.w3.org/ns/org#siteAddress> ?siteaddress. ?siteaddress <http://www.w3.org/2006/vcard/ns#hasAddress> ?hasaddress. ?hasaddress <http://www.w3.org/2006/vcard/ns#locality> ?municipio.  <%s> <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?muni. ?muni <http://opendata.aragon.es/def/ei2a#organizationName> ?sociedad.   }
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Municipio
+          Valor: municipio
+        Campo2:
+          Nombre: Sociedad  mercantil
+          Valor: sociedad   
+    CampoValor2:
+      Tipo: Api
+      Oculto: False
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Año
+          Valor: ANO
+      

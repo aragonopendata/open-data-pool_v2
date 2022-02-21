@@ -1,0 +1,17 @@
+BodyClass: fichaComunidad fichaEmisario
+PanelCentral:
+  #titulo del panel
+  Titulo: http://purl.org/dc/elements/1.1/identifier
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX wisdom:<http://www.semanticwater.com/WISDOM#> PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>  PREFIX dc:<http://purl.org/dc/elements/1.1/> PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> select distinct ?fecha ?material where { <%s> dc:identifier ?identificador . optional {<%s> dc:date ?fecha .} optional {<%s> wisdom:hasMaterial ?hasMaterial. ?hasMaterial rdfs:label ?material .}}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Fecha
+          Valor: fecha       
+        Campo2:
+          Nombre: Material
+          Valor: material  

@@ -1,0 +1,65 @@
+BodyClass: fichaComunidad fichaOrdenanza
+PanelCentral:
+  #titulo del panel
+  Titulo: http://opendata.aragon.es/def/ei2a#observations
+  CampoValores:
+    CampoValor1:
+      Tipo: Virtuoso
+      Oculto: False
+      Query: PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX ei2a:<http://opendata.aragon.es/def/ei2a#> select substr(str(?localidad),46) as ?idconsorcio ?consorcio ?fechaini ?tipo ?notas where { optional {?ordenanza <http://opendata.aragon.es/def/ei2a#observations> ?notas .} optional {?ordenanza <http://opendata.aragon.es/def/ei2a#documentType> ?tipo .} optional{?ordenanza <http://opendata.aragon.es/def/ei2a#startDate> ?fechaini .} ?ordenanza <http://www.w3.org/2003/01/geo/wgs84_pos#location> ?localidad . ?localidad <http://opendata.aragon.es/def/ei2a#organizationName> ?consorcio filter(?ordenanza = <%s>)}
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: Subtipo
+          Valor: tipo
+        Campo4:
+          Nombre: Consorcio
+          Valor: consorcio
+          Url: /pool/detalles?url=consorcio-%s
+          CampoUrl: idconsorcio
+        Campo2:
+          Nombre: Notas
+          Valor: notas
+        Campo3:
+          Nombre: Fecha de inicio
+          Valor: fechaini
+    CampoValor3:
+      Tipo: Api
+      Query: select ?source where  {<%s> <http://purl.org/dc/elements/1.1/source> ?source}
+      Oculto: False
+      Campo: uri
+      Campos:
+        Campo1:
+          Nombre: TEXTO MODIFICACION
+          Valor: TEXTOMODIFICACION
+          Class: dato dato-texto info      
+PanelLateral:
+  ListaContextos:
+    ListaContexto1:
+      Titulo: Otras ordenanzas fiscales de %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://opendata.aragon.es/def/ei2a#isOfInterestTo
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#nameDocument> ?name . ?url <http://opendata.aragon.es/def/ei2a#isOfInterestTo> ?diputacion. ?ordenanzaOriginal <http://opendata.aragon.es/def/ei2a#isOfInterestTo> ?diputacion. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#ordenanza_fiscal_consorcio> . filter(?ordenanzaOriginal = <%s>)} LIMIT 5      
+      Campo: uri
+      Tipo: gadget-iconos
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Lugares&filt=Tipos__dc%3Atype__%3Chttp%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23ordenanza_fiscal_diputacion%3E__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
+    ListaContexto2:
+      Titulo: Ordenanzas generales de %s
+      CampoParseo: 
+          Query: select ?parseo where  { <%s>  <http://opendata.aragon.es/def/ei2a#organizationName> ?parseo .}
+          Campo: http://opendata.aragon.es/def/ei2a#isOfInterestTo
+      Query: select ?url ?name where {?url <http://opendata.aragon.es/def/ei2a#nameDocument> ?name . ?url <http://opendata.aragon.es/def/ei2a#isOfInterestTo> ?diputacion. ?ordenanzaOriginal <http://opendata.aragon.es/def/ei2a#isOfInterestTo> ?diputacion. ?url <http://purl.org/dc/elements/1.1/type> <http://opendata.aragon.es/def/ei2a#ordenanza_general_consorcio> . filter(?ordenanzaOriginal = <%s>)} LIMIT 5      
+      Campo: uri
+      Tipo: gadget-iconos
+      EnlaceVerMas: 
+        Texto: Ver más.
+        url: filtros?tem=&stem=&pro=&com=&mun=%s&ent=46&sent=&from=Lugares&filt=Tipos__dc%3Atype__%3Chttp%3A%2F%2Fopendata.aragon.es%2Fdef%2Fei2a%23ordenanza_general_consorcio%3E__
+        CampoParseo: 
+          Query: select ?parseo where { <%s>  <http://purl.org/dc/elements/1.1/identifier> ?parseo .}
+          Campo: http://www.w3.org/2003/01/geo/wgs84_pos#location
