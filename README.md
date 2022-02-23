@@ -17,3 +17,7 @@ El repositorio está formado por dos carpetas principales:
 - API Publicacion y Administracion de cargas: Donde se encuentran el API de publicación de los datos y la administración de las cargas publicadas.
 - Proceso de actualizacion de cargas: Proceso de sincronización que se ejecuta periódicamente para realizar la actualización de los datos de las cargas ya publicadas previamente y que requieren de una actualización continua de información.
 
+Nota: para el correcto funcionamiento se deberían revisar los ficheros y adecuar la configuración de variables(por ejemplo: ips, datos autotenticación...) al entorno al que se quiera desplegar.
+
+Desarrolladores: [Juan Valer](https://github.com/juanvaler-gnoss), [Unai Rudiez](https://github.com/Unai-R), [Fernando Martinez](https://github.com/fernandomartinez-gnoss).  
+
