@@ -188,7 +188,7 @@ class Triple
 	public function __construct($trazas) {
 		$this->trazas = $trazas;
 		$this->trazas->setClase("Triple");
-		$this->trazas->LineaDebug("__construct", "Inicializa el constructor"); 		 
+		$this->trazas->LineaDebug("__construct", "Inicializa el costructor"); 		 
 	}
     //Función que se utiliza para inicia la estructura de la triple para parsearla posteriormente
 	public function InformaEsquema($sujeto, $sujetoParseo, $verbo, $verboParseo, $predicado, $predicadoParseo, $tipoPredicadoParseo, $tipoNodo, $condition) {
@@ -287,6 +287,9 @@ class Triple
 			$this->trazas->LineaDebug("ProcesaDatos", sprintf("no se procesa porque el verbo es vacío",
 																	$this->condition,$this->verbo,$this->predicado));
 		}
+		$this->trazas->LineaInfo("__construct", "Inicia el constructor del worker para la vista: " . $id); 
+		$this->trazas->setEscribeTrazasDebug($trazasDebug);
+		$this->trazas->setEscribeTrazasInfo(true);
 	}
 
 	private function DameCondicion($condition,$filaCVS){
@@ -434,7 +437,11 @@ class Triple
 			if (empty($filaCVS[$value])) {
 				$filaCVSNamespace[$value] = "";
 			} else if (($this->tipoNodo=="field") || ($this->tipoNodo=="value")) {
+				$this->trazas->LineaInfo("field", "field ". $this->tipoNodo ); 
+				
+				$this->trazas->LineaInfo("value", "value ". $this->tipoNodo ); 
 				$tipo = strtolower($this->tipoPredicadoParseo);
+				$this->trazas->LineaInfo("tipoPredicadoParseo", "tipoPredicadoParseo ". $this->tipoPredicadoParseo );
 				if (empty($tipo)){
 					$valor = $filaCVS[$value];
 					$filaCVSNamespace[$value] = $valor;
@@ -561,15 +568,18 @@ class Triple
 	function DameValorNamespaceUri($filaCVS,$valorParseo) {
 		$filaCVSNamespace = array();
         foreach ($valorParseo as $value) {
+			$this->trazas->LineaInfo("valorParseo", "valorParseo ". $value ); 
 			$this->trazas->LineaDebug("DameValorNamespaceUri", sprintf("Valor parseo S:%s  ",$value)); 
-			if(strpos($value, 'ARAGOPEDIA') !== false or strpos($value, 'datosgobes') !== false or strpos($filaCVS[$value], 'http://') !== false)
+			$this->trazas->LineaDebug("DameValorNamespaceUri", sprintf("filaCSV Valor parseo S:%s  ",$filaCVS[$value])); 
+			if(strpos($value, 'ARAGOPEDIA') !== false or strpos($value, 'datosgobes') !== false or strpos($filaCVS[$value], 'http://') !== false or  strpos($value, 'aragopedia') !== false or strpos($value, 'wiki') !== false or strpos($value, 'dbPedia') !== false)
 			{ 
+				$this->trazas->LineaInfo("valorParseo", "ARAGOPEDIA ". $value ); 
 				$valor = $filaCVS[$value];	
 				$filaCVSNamespace[$value] = $valor;
 			}
 			else
 			{
-				if(strpos($value, 'provincia') !== false or strpos($value, 'Provincia') !== false or strpos($value, 'PROVINCIA') !== false or strpos($value, 'PROVINCIA_ESTABLECIMIENTO') !== false or strpos($value, 'COD_PROV') !== false or strpos($value, 'CPROVI') !== false or strpos($value, 'COD_PROV') !== false)
+				if(strpos($value, 'provincia') !== false or strpos($value, 'Provincia') !== false or strpos($value, 'PROVINCIA') !== false or strpos($value, 'PROVINCIA_ESTABLECIMIENTO') !== false or strpos($value, 'COD_PROV') !== false or strpos($value, 'CPROVI') !== false or strpos($value, 'COD_PROV') !== false or strpos($value, 'cprovi') !== false or strpos($value, 'cprov') !== false)
 				{
 					$this->trazas->LineaDebug("DameValorNamespaceUri", sprintf("Es diputación  ",$filaCVS[$value])); 
 					$valor = $filaCVS[$value];	
@@ -598,7 +608,14 @@ class Triple
 					}
 					
 				}
-				elseif(strpos($value, 'municipio') !== false or strpos($value, 'Municipio') !== false  or strpos($value, 'LOCALIDAD') !== false or strpos($value, 'MUNICIPIO') !== false or strpos($value, 'LOCA_MUN') !== false or strpos($value, 'LOCALIDAD_ESTABLECIMIENTO') !== false or strpos($value, 'MUNICIPIO_ESTABLECIMIENTO') !== false or strpos($value, 'DLOCAL') !== false)
+				elseif(strpos($value, 'municipio') !== false or strpos($value, 'Municipio') !== false or strpos($value, 'localidad_establecimiento') !== false  
+				or strpos($value, 'LOCALIDAD') !== false or strpos($value, 'MUNICIPIO') !== false or 
+				strpos($value, 'LOCA_MUN') !== false or strpos($value, 'LOCALIDAD_ESTABLECIMIENTO') !== false or 
+				strpos($value, 'MUNICIPIO_ESTABLECIMIENTO') !== false or strpos($value, 'DLOCAL') !== false or strpos($value, 'dlocal') !== false
+				or strpos($value, 'localidad') !== false or strpos($value, 'Localidad') !== false or strpos($value, 'loca_mun') !== false or strpos($value, 'municipio_establecimiento') !== false
+				or strpos($value, 'Localidad_establecimiento') !== false or  strpos($value, 'Municipio_establecimiento') !== false
+				or strpos($value, 'nombre_municipio') !== false or strpos($value, 'NOMBRE_MUNICIPIO') !== false)
+
 				{
 					$this->trazas->LineaDebug("DameValorNamespaceUri", sprintf("Es municipio  ",$filaCVS[$value])); 
 					$valor = $filaCVS[$value];	
@@ -609,13 +626,15 @@ class Triple
 					else
 					{
 						$this->trazas->LineaDebug("DameValorNamespaceUri", sprintf("No es número: municipio  S:%s  ",$valor)); 
+						
 						$valor = $this->ObtenerIdentificadorDeSQL ($valor ,"M");
 						
 						$filaCVSNamespace[$value] = $valor;
 					}
 
 				}
-				elseif(strpos($value, 'comarca') !== false  or strpos($value, 'NOMBRE_COMARCA') !== false or strpos($value, 'CODIGO_COMARC') !== false or strpos($value, 'CODIGO_COMARC') !== false or strpos($value, 'CCOMAR') !== false )
+
+				elseif(strpos($value, 'comarca') !== false  or strpos($value, 'NOMBRE_COMARCA') !== false or strpos($value, 'codigo_comarc') !== false or strpos($value, 'CODIGO_COMARC') !== false or strpos($value, 'CCOMAR') !== false or strpos($value, 'ccomar') !== false)
 				{
 					$this->trazas->LineaDebug("DameValorNamespaceUri", sprintf("Es comarca  ",$filaCVS[$value])); 
 					$valor = $filaCVS[$value];	
@@ -633,6 +652,7 @@ class Triple
 						
 
 				}
+			
 				else
 				{
 					$this->trazas->LineaDebug("DameValorNamespaceUri", sprintf("Valor sin modificar S:%s  ",$filaCVS[$value])); 
@@ -653,6 +673,7 @@ class Triple
 					$valor = preg_replace('([^A-Za-z0-9])', '', $valor);
 					$valor = str_replace( "aa789bb","-", $valor);			
 					$valor = strtolower($valor);
+					$this->trazas->LineaInfo("ProcesaDatos", "Valor Modificado ". $valor ); 
 					$this->trazas->LineaDebug("ProcesaDatos", sprintf("Valor Modificado S:%s  ",$valor)); 
 					$filaCVSNamespace[$value] = $valor;
 				}
@@ -666,8 +687,8 @@ class Triple
 			$this->trazas->LineaDebug("DameValorNamespaceShape", sprintf("Valor parseo S:%s  ",$value)); 
 			if(strpos($value, 'shape') !== false )
 			{
-				/*$serverName="";
-				$connectionInfo=array("Database"=>"", "UID"=>"","PWD"=>"");
+				/*$serverName="biv-aodback-01.aragon.local,5432";
+				$connectionInfo=array("Database"=>"aodpool2", "UID"=>"gnoss_pg","PWD"=>"gn0ss_pg");
 				$conn = sqlsrv_connect( $serverName, $connectionInfo);
 				if( $dbconn3 ) {
 					LineaInfo("DameValorNamespaceShape", sprintf("Conectado S:%s  ",$value));
@@ -676,7 +697,7 @@ class Triple
 					die( print_r( sqlsrv_errors(), true));
 				}	*/
 				$this->trazas->LineaDebug("DameValorNamespaceShape", sprintf("Dentro shape S:%s  ",$filaCVS[$value])); 
-				$conn = pg_connect("");
+				$conn = pg_connect("host=biv-aodback-01.aragon.local port=5432 dbname=aodpool2 user=gnoss_pg password=gn0ss_pg");
 				$this->trazas->LineaDebug("DameValorNamespaceShape", sprintf("Despues conn S:%s  ",$conn)); 
 							
 				//$sql="SELECT ST_AsText('$filaCVS[$value]');";
@@ -718,9 +739,21 @@ class Triple
 		);							
 		$slug = preg_replace('([^A-Za-z0-9])', '', $slug);		
 		$slug = strtolower($slug);
+		#tratamos las excepciones de los municipios Almunia de Doña Godina (La) / Quinto (Quinto de Ebro)
+		if ($slug == 'almuniadedonagodina') {
+			$slug = 'almuniadedonagodinala';
+		}
+		if ($slug == 'quintodeebro') {
+			$slug = 'quinto';
+		}
+		if ($slug == 'jacetania') {
+			$slug = 'lajacetania';
+		}
+		
+	
 		$this->trazas->LineaDebug("ObtenerIdentificadorDeSQL", sprintf("Valores Tipo:%s  nombre:%s slug:%s ",$tipo, $nombre, $slug)); 
 						 
-		$conn = pg_connect("");
+		$conn = pg_connect("host=biv-aodback-01.aragon.local port=5432 dbname=aodpool2 user=gnoss_pg password=gn0ss_pg");
 		//$this->trazas->LineaDebug("ObtenerIdentificadorDeSQL", sprintf("Despues conn S:%s  ",$conn)); 
 									
 		$sql="SELECT code FROM public.lugares WHERE slug='" . $slug . "' and type='" . $tipo . "';";		
@@ -746,7 +779,7 @@ class Triple
 	{	
 		$this->trazas->LineaDebug("ObtenerShapeDeSQL", sprintf("Valores shape:%s   ",$shape)); 
 						 
-		$conn = pg_connect("");
+		$conn = pg_connect("host=biv-aodback-01.aragon.local port=5432 dbname=aodpool2 user=gnoss_pg password=gn0ss_pg connect_timeout=5");
 		//$this->trazas->LineaInfo("ObtenerShapeDeSQL", sprintf("Despues conn S:%s  ",$conn)); 							
 		//$sql="SELECT ST_AsText(ST_Transform('". $shape ."',4258));";
 		$sql="SELECT ST_AsText(ST_Transform(ST_GeometryFromText(ST_AsText('". $shape ."'),25830),4258));";		

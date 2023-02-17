@@ -122,8 +122,8 @@ class Worker
 		$this->dominioAplicacion = $dominioAplicacion;
 		$this->trazas->setClase("worker");
 		$this->trazas->LineaInfo("__construct", "Inicia el constructor del worker para la vista: " . $id); 
-		$this->trazas->setEscribeTrazasDebug($trazasDebug);
-		$this->trazas->setEscribeTrazasInfo(true);
+		$this->trazas->setEscribeTrazasDebug(false);
+		$this->trazas->setEscribeTrazasInfo(false);
 		$this->UrisActualizar = array();
 	}
 	
@@ -137,7 +137,13 @@ class Worker
 		$pathNoprocesados =  sprintf("%s/NoProcesados/%s", $webPath, $this->carpeta);
 		$pathprocesados =  sprintf("%s/Procesados/%s", $webPath, $this->carpeta);
 		$pathError =  sprintf("%s/Error/%s", $webPath, $this->carpeta);
-		
+		$this->trazas->LineaInfo("Procesa","Borro los triples del provenance");
+				$identificadorIso= explode (" ",$this->id);
+				$idnumerico ="";
+		if (is_numeric($identificadorIso[0])) 
+				{
+					$idnumerico =$identificadorIso[0];
+				}
 		$this->trazas->LineaInfo("Procesa"," Inicio  " . $this->actualizarItems); 
 
 		//Busca un csv
@@ -193,9 +199,12 @@ class Worker
 				$this->trazas->LineaInfo("Procesa","Genero los triples que hay que borrar, pertenecientes a " . count($this->UrisActualizar) . " URIs");
 				$triples = $this->GeneraTriplesBorrar($this->UrisActualizar, $pathNoprocesados);
 				//Obtenemos los triples del provenance relacionado para borrarlo cuando acabe el borrado de recursos
-				$this->trazas->LineaInfo("Procesa","Genero los triples del provenance");
-				$provenance = $this->ObtenerTriplesProv($this->UrisActualizar, $pathNoprocesados);
-			}
+				if ((!is_numeric($identificadorIso[0])) || (empty($this->ObtenerCKANDataSet($idnumerico)) )){
+					$this->trazas->LineaInfo("Procesa","Genero los triples del provenance");
+					$provenance = $this->ObtenerTriplesProv($this->UrisActualizar, $pathNoprocesados);
+					
+				}	
+				}
 
 			//Borro los triples que se quieren actualizar
 			if ($this->trazas->SinError()) {
@@ -206,8 +215,10 @@ class Worker
 			//Una vez que se han borrado los triples sin errores, borramos el provenance. No puede ser antes porque, en caso de que se produjera un error en el borrado de recursos, 
 			//el provenance es la forma de buscarlos y acceder a ellos. 
 			if ($this->trazas->SinError()){
-				$this->trazas->LineaInfo("Procesa","Borro los triples del provenance");
-				$this->BorraTriples($provenance);
+				
+			//	if ((!is_numeric($identificadorIso[0])) || (empty($this->ObtenerCKANDataSet($idnumerico)) )){
+					$this->BorraTriples($provenance);
+			//	}	
 			}
 			
 		}	
@@ -291,9 +302,17 @@ class Worker
 	 */
 	function GeneraTriples($pilaTriples,$registrosCSV,$pathNoprocesados)
 	{    
+		
+		$identificadorIso= explode (" ",$this->id);
+		$idnumerico ="";
+		if (is_numeric($identificadorIso[0])) 
+		{
+        	$idnumerico =$identificadorIso[0];
+		}
 		//Establecemos los valores que necesitan un parseado especial por ser del Instituto Aragonés del Agua
 		$arrayEspeciales = array("LONSAN", "TAMSAN", "SECPUN", "LONEMI", "TAMEMI", "HAB_EQ_DISEÑO_ADOPT", "LONDIS", "TAMDIS", "VERDEP", "INCDEP",  "CONDEP", "SINDEP", "CAPDEP", "LONCON", "TAMCON", "LONCOL", "TAMCOL");
 		$this->trazas->LineaInfo("GeneraTriples","Inicio de generación de triples"); 
+		
 		$nombreFichero = $pathNoprocesados . "/datos.n3";    
 		//abro fichero para escribir las triples
 		$myfile = fopen($nombreFichero, "w+");		
@@ -301,8 +320,7 @@ class Worker
 		$fechaInicio =str_replace (" ","T", date('Y-m-d H:i:s'));
 		$cuenta=0;
 		$primerTriple="";
-		//$objetoWasUsedBy = $this->guid();
-		$objetoWasUsedBy =str_replace ("}","",str_replace ("{","", "<http://opendata.aragon.es/recurso/procedencia/".$this->guid().">"));
+		 
 		//$this->trazas->LineaInfo("GeneraTriples","objetoWasUsedBy ". $objetoWasUsedBy);
 			//por cada linea del archivo de datos
 			foreach ($registrosCSV as $filaCVS) 
@@ -350,9 +368,22 @@ class Worker
 				
 				//$this->trazas->LineaInfo("GeneraTriples"," generar wasUsedBy  ." . $tripleCargaProv);
 			}
+			
+			$objetoWasUsedBy =str_replace ("}","",str_replace ("{","", "<http://opendata.aragon.es/recurso/procedencia/".$this->guid().">"));
+			if ((is_numeric($identificadorIso[0])) && (!empty($this->ObtenerCKANDataSet($idnumerico)) )) {
+				//$this->trazas->LineaInfo("GeneraTriples","Objeto2");
+				//#$objetoWasUsedBy =str_replace ("}","",str_replace ("{","", "<http://opendata.aragon.es/recurso/procedencia/".$this->ObtenerCKANProcedencia($idnumerico).">"));
+				$objetoDataSet =str_replace ("}","",str_replace ("{","", "<".$this->ObtenerCKANDataSet($idnumerico).">"));
+				$objetoResource =str_replace ("}","",str_replace ("{","", "<".$this->ObtenerCKANResource($idnumerico).">"));
+				$predicadoProv = "<http://purl.org/dc/elements/1.1/source>";
 				
-
-
+			}
+			//$this->trazas->LineaInfo("GeneraTriples","Objeto2" . $objetoWasUsedBy); 
+			
+							
+			$this->trazas->LineaInfo("GeneraTriples","Objeto3");
+			
+	
 		if (count($this->UrisActualizar) == 0){
 			$this->trazas->LineaInfo("Procesa","urisActualizar está vacio");
 
@@ -361,15 +392,35 @@ class Worker
 		$this->trazas->LineaInfo("GeneraTriples"," Introducimos en datos.n3 los triples a actualizar");
 		foreach ($this->UrisActualizar as $sujetoProvgeneral) 
 		{
-			$tripleCargaProv =  $sujetoProvgeneral . " " . $predicadoProv . " " . $objetoWasUsedBy;	
-			fwrite($myfile,  $tripleCargaProv . " .\n");
-		}
+			
+			if (!empty($this->ObtenerCKANDataSet($idnumerico))) {
+				$tripleCargaProv =  $sujetoProvgeneral . " " . $predicadoProv . " " . $objetoDataSet;	
+				fwrite($myfile,  $tripleCargaProv . " .\n");
+				if (!empty($this->ObtenerCKANResource($idnumerico))) {
+					$tripleCargaProv =  $sujetoProvgeneral . " " . $predicadoProv . " " . $objetoResource;	
+					fwrite($myfile,  $tripleCargaProv . " .\n");
+				}
+
+			}
+			else
+			{
+				
+				$tripleCargaProv =  $sujetoProvgeneral . " " . $predicadoProv . " " . $objetoWasUsedBy;	
+				fwrite($myfile,  $tripleCargaProv . " .\n");
+			}	
+			
+		}		
+			
+		
+		
 
 
+		if (!(is_numeric($identificadorIso[0])) || (empty($this->ObtenerCKANDataSet($idnumerico)))) {
 		// Carga de provenance
 		// Obtener id parara dataSet de provenance, si no es un numero lo tratamos como una URI
-		$this->cargaProvenance($myfile, $fechaInicio, $objetoWasUsedBy);
-
+			$this->cargaProvenance($myfile, $fechaInicio, $objetoWasUsedBy);
+		}
+		
 		
 		fclose($myfile);
 		$this->trazas->LineaInfo("GeneraTriples","Fin de generación de triples. Triples generadas: ". $cuenta ); 
@@ -416,8 +467,8 @@ class Worker
 		// solo se carga si es una vista, se identifica porque tiene id
 		if (is_numeric($identificadorIso[0])) 
 		{
-			$tripleWasAssociatedWithDataset =  $objetoWasUsedBy . " <http://www.w3.org/ns/prov#wasAssociatedWith> " . $objetoDataset;
-			fwrite($myfile,  $tripleWasAssociatedWithDataset . " .\n");
+			#$tripleWasAssociatedWithDataset =  $objetoWasUsedBy . " <http://www.w3.org/ns/prov#wasAssociatedWith> " . $objetoDataset;
+			#fwrite($myfile,  $tripleWasAssociatedWithDataset . " .\n");
 		}
 		else
 		{		
@@ -450,10 +501,10 @@ class Worker
 		fwrite($myfile,  $tripleNameAodpool . " .\n");
 
 		// solo se carga si es una vista, se identifica porque tiene id
-		if (is_numeric($identificadorIso[0])) 
-		{
-			$this->trazas->LineaDebug("cargaProvenance","identificadorIso[0]". $identificadorIso[0]);
-			$tripleRDFTypeDataset =  $objetoDataset . " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset>" ;
+		/** if (is_numeric($identificadorIso[0])) 
+		//{
+		//	$this->trazas->LineaDebug("cargaProvenance","identificadorIso[0]". $identificadorIso[0]);
+		//		$tripleRDFTypeDataset =  $objetoDataset . " <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/dcat#Dataset>" ;
 			fwrite($myfile,  $tripleRDFTypeDataset . " .\n");
 
 			$tripleTitleDataset =  $objetoDataset . " <http://purl.org/dc/elements/1.1/title> \"" . $this->id . "\"" ;
@@ -472,7 +523,7 @@ class Worker
 			else{ $this->trazas->LineaInfo("cargaProvenance","El CKAN está vacío");}
 			
 
-		}
+		} **/
 	}
 
 	function getMapeadoEspeciales($valor){
@@ -561,7 +612,166 @@ class Worker
 	 * Obtener en virtuoso el sujeto CKAN que corresponde al identificador del xml que se intenta cargar
 	 */
 
-	function ObtenerCKAN($id)
+	 function ObtenerCKANDataSet($id)
+	 {
+		  $triples = "";
+		  $this->trazas->LineaInfo("ObtenerCKAN","Busco el Ckan correspondiente al identificador" . $id); 		
+			  
+		  //$query = $this->isqlHost."?default-graph-uri=&query=select+%3Fs+%3Fp+%3Fo+from+%3Chttp%3A%2F%2Fopendata.aragon.es%2Fgraph%2Fpool%3E%0D%0Awhere+%0D%0A%7B%0D%0A%09%3C$uri%3E+dc%3Asource+%3Fsource.+%3Fs+dc%3Asource+%3Fsource.+%3Fs+%3Fp+%3Fo.+%0D%0A%7D%0D%0A&should-sponge=&format=application%2Fsparql-results%2Bxml&timeout=0&debug=on&run=+Run+Query+";
+		  #$query = "select  distinct ?s from <http://opendata.aragon.es/def/ei2av2> where {  ?s <http://www.w3.org/ns/dcat#accessURL> ?o. filter ( contains(str(?o), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')) }";
+		  $query="select  distinct ?s from <http://opendata.aragon.es/def/ei2av2> where { ?s  <http://www.w3.org/ns/dcat#distribution> ?recurso. ?recurso <http://www.w3.org/ns/dcat#accessURL> ?url.  filter ( contains(str(?url), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')). filter(contains(str(?s), 'https://opendata.aragon.es/datos/catalogo/dataset/'))}";
+		  //Inicializo la peticion get para obtener el xml con los triples
+		  $this->trazas->LineaInfo("ObtenerCKANDATASET", "Query " . $query);
+		  $xmlTriples = $this->LanzaConsultaRespuesta($this->isqlHost,$query);
+		  
+		  if (empty ($xmlTriples)) {
+			  $this->trazas->LineaError("ObtenerCKAN", "No se ha obtenido ningún triple ");
+		  }
+		  if ($this->trazas->SinError()) { 
+			  $listadoTriples = $xmlTriples->{"results"};		
+			  //$this->trazas->LineaInfo("ObtenerCKANDATASET", "listadoTriples " . $listadoTriples->asXML());
+			  //Genero los triples
+			  $elementos = $listadoTriples->{"result"}->count ();
+			  
+		
+			  for ($i = 0; $i < $elementos; $i ++) {
+
+				  $result = $listadoTriples->result[$i];				
+				 
+				  for ($x = 0; $x < $result->{"binding"}->count (); $x++) {
+					  $blindig = $result->binding [$x];
+					  $uri = $blindig->{'uri'}->__toString ();
+					 
+				  }
+			  }			
+		}  	
+		  $this->trazas->LineaInfo("ObtenerCKAN DataSet","Fin consulta a virtuoso"); 
+		  $this->trazas->LineaInfo("URIDATASET", "URIDATASET " . $uri);
+		  return $uri;
+	 }
+	 
+	 function ObtenerCKANResource($id)
+	 {
+		  $triples = "";
+		  $this->trazas->LineaInfo("ObtenerCKAN","Busco el Ckan correspondiente al identificador" . $id); 		
+			  
+		  //$query = $this->isqlHost."?default-graph-uri=&query=select+%3Fs+%3Fp+%3Fo+from+%3Chttp%3A%2F%2Fopendata.aragon.es%2Fgraph%2Fpool%3E%0D%0Awhere+%0D%0A%7B%0D%0A%09%3C$uri%3E+dc%3Asource+%3Fsource.+%3Fs+dc%3Asource+%3Fsource.+%3Fs+%3Fp+%3Fo.+%0D%0A%7D%0D%0A&should-sponge=&format=application%2Fsparql-results%2Bxml&timeout=0&debug=on&run=+Run+Query+";
+		  #$query = "select  distinct ?s from <http://opendata.aragon.es/def/ei2av2> where {  ?s <http://www.w3.org/ns/dcat#accessURL> ?o. filter ( contains(str(?o), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')) }";
+		  $query="select  distinct ?recurso from <http://opendata.aragon.es/def/ei2av2> where { ?s  <http://www.w3.org/ns/dcat#distribution> ?recurso. ?recurso <http://www.w3.org/ns/dcat#accessURL> ?url.  filter ( contains(str(?url), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')). filter(contains(str(?s), 'https://opendata.aragon.es/datos/catalogo/dataset/'))}";
+		  //Inicializo la peticion get para obtener el xml con los triples
+		  $this->trazas->LineaInfo("ObtenerCkanResource", "Query " . $query);
+		  $xmlTriples = $this->LanzaConsultaRespuesta($this->isqlHost,$query);
+		  
+		  if (empty ($xmlTriples)) {
+			  $this->trazas->LineaError("ObtenerCkanResource", "No se ha obtenido ningún triple ");
+		  }
+		  if ($this->trazas->SinError()) { 
+			  $listadoTriples = $xmlTriples->{"results"};		
+			  $this->trazas->LineaInfo("ObtenerCkanResource", "listadoTriples " . $listadoTriples->asXML());
+			  //Genero los triples
+			  $elementos = $listadoTriples->{"result"}->count ();
+			  
+		
+			  for ($i = 0; $i < $elementos; $i ++) {
+
+				  $result = $listadoTriples->result[$i];				
+				 
+				  for ($x = 0; $x < $result->{"binding"}->count (); $x++) {
+					  $blindig = $result->binding [$x];
+					  $uri = $blindig->{'uri'}->__toString ();
+					 
+				  }
+			  }			
+		}  	
+		  $this->trazas->LineaInfo("ObtenerCKAN DataSet","Fin consulta a virtuoso"); 
+		  $this->trazas->LineaInfo("URIDATASET", "URIDATASET " . $uri);
+		  return $uri;
+	 }
+
+	 function ObtenerResourceBorrar($uri2)
+	 {
+		  $triples = "";
+		  $this->trazas->LineaInfo("ObtenerCKAN","Busco el Ckan correspondiente al identificador" . $uri2); 		
+			  
+		  //$query = $this->isqlHost."?default-graph-uri=&query=select+%3Fs+%3Fp+%3Fo+from+%3Chttp%3A%2F%2Fopendata.aragon.es%2Fgraph%2Fpool%3E%0D%0Awhere+%0D%0A%7B%0D%0A%09%3C$uri%3E+dc%3Asource+%3Fsource.+%3Fs+dc%3Asource+%3Fsource.+%3Fs+%3Fp+%3Fo.+%0D%0A%7D%0D%0A&should-sponge=&format=application%2Fsparql-results%2Bxml&timeout=0&debug=on&run=+Run+Query+";
+		  #$query = "select  distinct ?s from <http://opendata.aragon.es/def/ei2av2> where {  ?s <http://www.w3.org/ns/dcat#accessURL> ?o. filter ( contains(str(?o), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')) }";
+		  //$query="select  distinct ?recurso from <http://opendata.aragon.es/def/ei2av2> where { ?s  <http://www.w3.org/ns/dcat#distribution> ?recurso. ?recurso <http://www.w3.org/ns/dcat#accessURL> ?url.  filter ( contains(str(?url), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')). filter(contains(str(?s), 'https://opendata.aragon.es/datos/catalogo/dataset/'))}";
+		$query="select  distinct (?o) from <http://opendata.aragon.es/def/ei2av2>  where  { ". $uri2 ."  <http://purl.org/dc/elements/1.1/source> ?o.  filter(contains(str(?o), '/resource/')) }  ";
+		//Inicializo la peticion get para obtener el xml con los triples
+		  $this->trazas->LineaInfo("ObtenerCkanResource", "Query " . $query);
+		  $xmlTriples = $this->LanzaConsultaRespuesta($this->isqlHost,$query);
+		  
+		  if (empty ($xmlTriples)) {
+			  $this->trazas->LineaError("ObtenerCkanResource", "No se ha obtenido ningún triple ");
+
+		  }
+		  if ($this->trazas->SinError()) { 
+			  $listadoTriples = $xmlTriples->{"results"};		
+			  $this->trazas->LineaInfo("ObtenerCkanResource", "listadoTriples " . $listadoTriples->asXML());
+			  //Genero los triples
+			  $elementos = $listadoTriples->{"result"}->count ();
+			  
+		
+			  for ($i = 0; $i < $elementos; $i ++) {
+
+				  $result = $listadoTriples->result[$i];				
+				 
+				  for ($x = 0; $x < $result->{"binding"}->count (); $x++) {
+					  $blindig = $result->binding [$x];
+					  $uri = $blindig->{'uri'}->__toString ();
+					 
+				  }
+			  }			
+		}  	
+		  $this->trazas->LineaInfo("ObtenerCkanResource DataSet","Fin consulta a virtuoso"); 
+		  $this->trazas->LineaInfo("ObtenerCkanResource", "URIDATASET " . $uri);
+		  return $uri;
+	 }
+	 function ObtenerCKANProcedencia($id)
+	 {
+		 $triples = "";
+		 $this->trazas->LineaInfo("ObtenerCKAN","Busco el Ckan correspondiente al identificador" . $id); 		
+			 
+		 //$query = $this->isqlHost."?default-graph-uri=&query=select+%3Fs+%3Fp+%3Fo+from+%3Chttp%3A%2F%2Fopendata.aragon.es%2Fgraph%2Fpool%3E%0D%0Awhere+%0D%0A%7B%0D%0A%09%3C$uri%3E+dc%3Asource+%3Fsource.+%3Fs+dc%3Asource+%3Fsource.+%3Fs+%3Fp+%3Fo.+%0D%0A%7D%0D%0A&should-sponge=&format=application%2Fsparql-results%2Bxml&timeout=0&debug=on&run=+Run+Query+";
+		 //$query = "select  distinct ?s from <http://opendata.aragon.es/def/ei2av2> where {  ?s <http://www.w3.org/ns/dcat#accessURL> ?o. filter ( contains(str(?o), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')) }";
+		 //$query = "select  distinct ?idFriendly from <http://opendata.aragon.es/def/ei2av2> where { ?dataset  <http://www.w3.org/ns/dcat#distribution> ?recurso; dct:identifier ?id. filter( contains(?id, 'https://')). ?dataset  dct:identifier ?id2. filter (?id != ?id2). bind (replace(?id, 'https://preopendata.aragon.es/datos/catalogo/dataset/','') as ?idFriendly). bind (?id2 as ?idNumeros). ?recurso <http://www.w3.org/ns/dcat#accessURL> ?url.  filter ( contains(str(?url), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')). filter(contains(str(?s), 'https://preopendata.aragon.es/datos/catalogo/dataset/')).}";
+			
+		$query ="select  distinct  ?s from <http://opendata.aragon.es/def/ei2av2> where { ?dataset  <http://www.w3.org/ns/dcat#distribution> ?recurso; dct:identifier ?id. filter( contains(?id, 'https://')). ?dataset  dct:identifier ?id2. filter (?id != ?id2). bind (replace(?id, 'https://opendata.aragon.es/datos/catalogo/dataset/','') as ?s). bind (?id2 as ?idNumeros). ?recurso <http://www.w3.org/ns/dcat#accessURL> ?url.  filter ( contains(str(?url), 'https://opendata.aragon.es/GA_OD_Core/download?view_id=" . $id . "&formato=csv')). filter(contains(str(?dataset), 'https://opendata.aragon.es/datos/catalogo/dataset/')).}";	
+				
+				 
+																																																																	
+		 //Inicializo la peticion get para obtener el xml con los triples
+		 $this->trazas->LineaInfo("ObtenerCKANPROCEDENCIA", "Query " . $query);
+		 $xmlTriples = $this->LanzaConsultaRespuesta($this->isqlHost,$query);
+		 
+		 if (empty ($xmlTriples)) {
+			 $this->trazas->LineaError("ObtenerCKAN", "No se ha obtenido ningún triple ");
+		 }
+		 if ($this->trazas->SinError()) { 
+			$listadoTriples = $xmlTriples->{"results"};		
+			$this->trazas->LineaInfo("ObtenerCKANPROCEDENCIA", "listadoTriples " . $listadoTriples->asXML());
+			//Genero los triples
+			$elementos = $listadoTriples->{"result"}->count ();
+			$this->trazas->LineaInfo("ObtenerCKANPROCEDENCIA", "elementos " . $elementos);
+	  
+			for ($i = 0; $i < $elementos; $i ++) {
+
+				$result = $listadoTriples->result[$i];				
+				$this->trazas->LineaInfo("ObtenerCKANPROCEDENCIA", "triples " . $result);
+				for ($x = 0; $x < $result->{"binding"}->count (); $x++) {
+					$blindig = $result->binding [$x];
+					$uri = $blindig->{'literal'}->__toString ();
+				   
+				}
+			}			
+	  }  	
+		 $this->trazas->LineaInfo("ObtenerCKANPROCEDENCIA", "URIPROCEDENCIA " . $uri);
+		 $this->trazas->LineaInfo("ObtenerCKANPROCEDENCIA","Fin consulta a virtuoso"); 
+		 return $uri;
+	}
+  
+	
+	 function ObtenerCKAN($id)
 	{
 		$triples = "";
 		$this->trazas->LineaInfo("ObtenerCKAN","Busco el Ckan correspondiente al identificador" . $id); 		
@@ -806,19 +1016,44 @@ class Worker
 		//16092021 161 Temas y 161 Temas NTI escriben sobre los mismos sujetos, es necesario hacer esto para que se almacenen los recursos como es necesario y lógico
 		//Cuando hacemos una actualización, borramos TODOS los triples de la vista que estamos actualizando y cargamos los de la actualización. 
 		//Para obtener todos esos triples, los buscamos por provenance, por eso es esencial borrar primero estos y luego los del provenance, porque si hubiera error no podriamos acceder a ellos de nuevo
-		if ($this->id == "161 Temas")
-		{			 
-			$this->BorrarConIdentificadorIso("161 Temas NTI");
-		}
+		#if ($this->id == "161 Temas")
+		#{			 
+		#	$this->BorrarConIdentificadorIso("161 Temas NTI");
+		
 		$triples = "";
+		$identificadorIso= explode (" ",$this->id);
+		$idnumerico ="";
+		if (is_numeric($identificadorIso[0])) 
+		{
+			$idnumerico =$identificadorIso[0];
+		}
+		
 		$this->trazas->LineaInfo("GeneraTriplesBorrar","Genero los triples que tengo que borrar"); 
 		foreach ($uris as $uri) {
 			//$query = $this->isqlHost."?default-graph-uri=&query=select+%3Fs+%3Fp+%3Fo+from+%3Chttp%3A%2F%2Fopendata.aragon.es%2Fgraph%2Fpool%3E%0D%0Awhere+%0D%0A%7B%0D%0A%09%3C$uri%3E+dc%3Asource+%3Fsource.+%3Fs+dc%3Asource+%3Fsource.+%3Fs+%3Fp+%3Fo.+%0D%0A%7D%0D%0A&should-sponge=&format=application%2Fsparql-results%2Bxml&timeout=0&debug=on&run=+Run+Query+";
 			//16092021 Esta consulta obtiene todos los triples de los recursos relacionados con el mismo provenance que $uri
 			
 			$this->trazas->LineaInfo("GeneraTriplesBorrar", $uri);
-			$query = "select distinct ?s ?p ?o from <$this->isqlDb> where  { $uri <http://www.w3.org/ns/prov#wasUsedBy> ?prov .  ?s <http://www.w3.org/ns/prov#wasUsedBy> ?prov. ?s ?p ?o}";
+			if ((!is_numeric($identificadorIso[0])) || (empty($this->ObtenerCKANDataSet($idnumerico)) )){
+				
+				$query = "select distinct ?s ?p ?o from <$this->isqlDb> where  { $uri <http://www.w3.org/ns/prov#wasUsedBy> ?prov .  ?s <http://www.w3.org/ns/prov#wasUsedBy> ?prov. ?s ?p ?o}";
+			}else{
+				//Si no nos devuelve nada la Distribution del DataSet ponemos un 0 para que no de fallo la consulta
+				if (!empty($this->ObtenerResourceBorrar($uri)) ){
+
+						$resourceId = "<" . $this->ObtenerResourceBorrar($uri) . ">" ;
+				}else{
+						$resourceId = "0";
+				}				
+						$query = "select distinct?s ?p ?o from <$this->isqlDb> where  {?s <http://purl.org/dc/elements/1.1/source> $resourceId .  ?s <http://purl.org/dc/elements/1.1/source> ?prov. ?s ?p ?o}";
+				
+				
+				//$this->trazas->LineaInfo("GeneraTriplesBorrar333","Genero los triples que tengo que borrar" . $resourceId); 
+				//$this->trazas->LineaInfo("GeneraTriplesBorrar333","Genero los triples que tengo que borrar" . $uri); 
+				//$query = "select distinct ?s ?p ?o from <$this->isqlDb> where  { $uri <http://purl.org/dc/elements/1.1/source>  ?prov .  ?s <http://purl.org/dc/elements/1.1/source>  ?prov. ?s ?p ?o}";
+			}
 			$this->trazas->LineaInfo("GeneraTriplesBorrar","Genero los triples que tengo que borrar" . $query); 
+			
 			
 			//Inicializo la peticion get para obtener el xml con los triples
 			$xmlTriples = $this->LanzaConsultaRespuesta($this->isqlHost,$query);
@@ -944,7 +1179,7 @@ class Worker
 	 */
 	function LanzaConsultaRespuesta($url,&$query)
 	{
-		$this->trazas->LineaDebug("LanzaConsultaRespuesta", sprintf("Inicio: url:%s , query:%s", $url, $query));
+		$this->trazas->LineaInfo("LanzaConsultaRespuesta", sprintf("Inicio: url:%s , query:%s", $url, $query));
 	    $resultArray = array();
 		$data = array('query' => $query , 
 					'timeout' => 0,
@@ -960,17 +1195,17 @@ class Worker
 			)
 		);
 		$context  = stream_context_create($options);
-		$this->trazas->LineaDebug("LanzaConsultaRespuesta", sprintf("SPARQL>>>: %s", $query));
+		$this->trazas->LineaInfo("LanzaConsultaRespuesta", sprintf("SPARQL>>>: %s", $query));
 		$result = @file_get_contents($url, false, $context);
 		
 		//si es error informo del mismo
 		if ($result === FALSE) { 
 			$this->error400 = "Se ha producido un error en la carga:";
-			$this->trazas->LineaError("LanzaConsultaRespuesta",trim($this->error400));
+			$this->trazas->LineaInfo("LanzaConsultaRespuesta",trim($this->error400));
 			$this->error = true;
 		} else {
 			//si no es error
-			$this->trazas->LineaDebug("LanzaConsultaRespuesta", sprintf("Se ha realizado la consulta correctamente"));
+			$this->trazas->LineaInfo("LanzaConsultaRespuesta", sprintf("Se ha realizado la consulta correctamente"));
 			$resultArray = simplexml_load_string ($result,'SimpleXMLElement', LIBXML_NOCDATA);
 		}
 		return $resultArray;	

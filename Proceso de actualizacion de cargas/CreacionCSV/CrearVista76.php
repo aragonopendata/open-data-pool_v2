@@ -16,7 +16,7 @@
 	    fwrite ($archivoCSV, "\n"); //introducimos un salto de linea para separar las keys del resto de los elemntos
 	    
 		for ($i=1; $i <= $numeroArchivos; $i++){
-		    $datosArchivo = file_get_contents (RUTA_XML."vista_".$vista."_$i.xml");
+		    $datosArchivo = file_get_contents (RUTA_XML."Vista_".$vista."_$i.xml");
 			if (is_string ($datosArchivo) ) {
 				$datosArchivo = str_replace("list-item", "item", $datosArchivo);
 				$xml = simplexml_load_string($datosArchivo);
@@ -40,8 +40,12 @@
 						}
 						
 						editarElemento($elemento);
+						if (isInteger($elemento) || trim($elemento) == "" ) {
+							fwrite($archivoCSV, $elemento.";");
+						} else {
+							fwrite($archivoCSV, "\"$elemento\";");
+						}
 						
-						fwrite ($archivoCSV, "\"$elemento\";");
 					}
 				
 					fwrite($archivoCSV, "\n");

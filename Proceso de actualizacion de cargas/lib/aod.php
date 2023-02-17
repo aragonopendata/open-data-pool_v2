@@ -74,6 +74,13 @@ function DescargarVistaAOD($idVista, $numPagina)
 
 function DescargarVistaAODaFichero($idVista, $numPagina)
 {
+    
+    // Si la página es superior a 1 , cargamos previamente los datos de la page anterior para comprobarlos a posterior
+     if ($numPagina > 1){
+            //logErrores("COMPROBAMOS LA PAGINA ANTERIOR");
+            $datosAnteriores = DescargarVistaAOD($idVista, $numPagina - 1);
+     }    
+
     //Obtenemos los datos de una peticion curl usando la funcion DescargarVistaAOD
     $datosXMLDescargadosCorrecto = DescargarVistaAOD($idVista, $numPagina);
     
@@ -89,9 +96,10 @@ function DescargarVistaAODaFichero($idVista, $numPagina)
         //Comprobamos si ya hemos descargado esta pagina. Hay que hacerlo porque actualmente no devuelve el resultado paginado (30112021)
         if ($numPagina > 1){
             //logErrores("COMPROBAMOS LA PAGINA ANTERIOR");
-            $datosAnteriores = DescargarVistaAOD($idVista, $numPagina - 1);
+            
+            //$datosAnteriores = DescargarVistaAOD($idVista, $numPagina - 1);
             if ($datosAnteriores === $datosXMLDescargadosCorrecto){
-                //logErrores("La pagina $numPagina es igual que la anterior, no descargamos");
+                logErrores("La pagina $numPagina es igual que la anterior, no descargamos");
                 return 'FIN';
             }
         }
@@ -109,6 +117,8 @@ function DescargarVistaAODaFichero($idVista, $numPagina)
 
         //Generamos la ruta del fichero destino, donde estaran los datos que hemos recibido
         //Rellenamos el fichero
+        //$FicheroDestino = $RutaTrabajo . "/VistasXml/Vista$idVista/vista_" . $idVista . "_$numPagina.xml";
+        //file_put_contents($FicheroDestino, $datosXMLDescargadosCorrecto);
         $FicheroDestino = $RutaTrabajo . "/VistasXml/Vista$idVista/Vista_" . $idVista . "_$numPagina.xml";      
         file_put_contents($FicheroDestino, $datosXMLDescargadosCorrecto);
         //logErrores("Se ha rellenado el xml de la pagina en $FicheroDestino");
@@ -124,8 +134,8 @@ function DescargarVistaCompleta($idVista)
     for ($i = 1; $i <= 160; $i++) {		
 		//logErrores('DescargarVistaCompleta - vista: ' .$idVista);
         $RutaFichero = DescargarVistaAODaFichero($idVista, $i);
-        
-		if ($RutaFichero === 'FIN') {
+        if ($RutaFichero === 'FIN') {
+                //logErrores('FIN' .$i);
            return 'FIN';
         }
         else{
@@ -138,12 +148,16 @@ function DescargarVistaCompleta($idVista)
             }            
             $xml = simplexml_load_string($contenido);
             libxml_clear_errors();
-            if($xml != false){
-                $numResultados = $numResultados + $xml->count();
+            //logErrores($xml);
+	    if($xml !== false){
+                $numResultados = $xml->count();
+		//logErrores("numResultados" .$numResultados);
             }
-            //Si se obtienen menos de los resultados que se han pedido por pagina, estamos en la ultima
+
+		//logErrores("numResultados" .$numResultados);
+	    //Si se obtienen menos de los resultados que se han pedido por pagina, estamos en la ultima
             if ($numResultados < 1000){
-                //logErrores("Se ha terminado la descarga de la vista $idVista");
+                //logErrores("Se ha terminado la descarga de la vista_pag" .$i);
                 return "FIN";
             }
             else{
@@ -165,7 +179,7 @@ function DescargarCSVOrigen($nombreVista)
 	global $URLEndpointVirtuoso;
     libxml_use_internal_errors(true);
     $ch = curl_init(); // instanciamos curl e iniciamos un handler para trabajar.
-    
+    //$URLEndpointVirtuoso='http://biv-aodback-01.aragon.local:8890/sparql'; // Indica la URL que se usa para acceder a virtuoso.
 	$parametro = $nombreVista;
     if ($nombreVista === "Relación de inmuebles del Inventario de Patrimonio del Gobierno de Aragón"){
         $parametro = "Relacion de inmuebles del Inventario de patrimonio del Gobierno de Aragon";    
@@ -199,10 +213,10 @@ function DescargarCSVOrigen($nombreVista)
     //logErrores("aod:  Inicio descarga de la vista $nombreVista ");
     $datosCSVDescargados = curl_exec($ch);
 	//echo "\nDATOS: $datosCSVDescargados";
-	//logErrores("aod:  Fin descarga de la vista $nombreVista ");
+	logErrores("aod:  Fin descarga de la vista $nombreVista ");
 	
 	$urlCsv = str_replace(PHP_EOL, '', str_replace('\r\n', '', str_replace('"', '', str_replace('"o"', '', $datosCSVDescargados)))); 
-	//logErrores("aod:  url: $urlCsv ");
+	logErrores("aod:  url: $urlCsv ");
 
     if (empty($urlCsv)){
         $consulta = "select ?o from <http://opendata.aragon.es/def/ei2av2> where { ?s <http://www.w3.org/ns/dcat#accessURL> ?o filter ( contains(str(?o), '$parametro.csv'))} limit 1";
@@ -274,13 +288,13 @@ function GenerarCSVDesdeXMLVista($idVista)
     else{
         $ComandoCMD = "cd $RutaDeTrabajo/CreacionCSV && " . PHP_BINARY . ' ./CrearVista' . $NumeroVista . '.php';
     }
-    //logErrores($ComandoCMD);
+    logErrores($ComandoCMD);
     $ResultadoComandoCMD = shell_exec($ComandoCMD);
 
     if (empty($ResultadoComandoCMD)) {
         $ResultadoComandoCMD = 'Ejecucion Correcta!';
     }
-    //logErrores($ResultadoComandoCMD);
+    logErrores($ResultadoComandoCMD);
     return;
 }
 
@@ -301,6 +315,17 @@ function actualizarCsv($idVista, $nombreVista, $dcTypes, $URLApi)
             return FALSE;
         }
     }
+ 
+    elseif ($nombreVista === "Comunidad"){
+        logErrores("Aragopedia");
+        $ficheroCSV = "/data/apps/ActualizarAODv2/VistasCsv/Vista$nombreVista/$nombreVista".".csv";
+            if (!file_exists($ficheroCSV)) {
+                logErrores("Error al leer el fichero $ficheroCSV");
+                return FALSE;
+            }
+        
+    
+    }
     else{
         $ficheroCSV = "./VistasCsv/Vista$idVista/Vista_$idVista.csv";
         if (!file_exists($ficheroCSV)) {
@@ -311,9 +336,10 @@ function actualizarCsv($idVista, $nombreVista, $dcTypes, $URLApi)
 
     $ch       = curl_init(); //Se crea un curl
     $datosCSV = file_get_contents($ficheroCSV);
-    //logErrores($datosCSV);
+    logErrores($datosCSV);
     $datosCSV = curl_escape($ch, $datosCSV);
     
+   
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
@@ -321,7 +347,8 @@ function actualizarCsv($idVista, $nombreVista, $dcTypes, $URLApi)
     curl_setopt($ch, CURLOPT_URL, $URLApi);
     curl_setopt($ch, CURLOPT_POST, 1); //Se le dice que tiene que usar el protocolo POST
     curl_setopt($ch, CURLOPT_POSTFIELDS, "idesquema=" . $nombreVista . "&csv=" . $datosCSV /*. "&dc_type=" . $dcTypes[$idVista]*/);
-    
+    logErrores("vista : $nombreVista dc_type $dcTypes[$idVista] url $URLApi");    
+
     $RespuestaHTTP = curl_exec($ch); //Se ejecuta la peticion
     
     $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -480,7 +507,7 @@ function VerificarDatosBOA($idVista)
 }
 
 function VerificarEspacioEnDisco() {
-    //logErrores("Verificamos el espacio en disco");
+    logErrores("Verificamos el espacio en disco");
     global $RutaTrabajo;
     global $ProcentajeEspacioMinimoEnDisco;
     $EspacioLibreEnBytes = disk_free_space($RutaTrabajo);
@@ -563,17 +590,17 @@ function DescargarBOAJSON($nombreVista)
     //logErrores($nombreVista);
     switch ($nombreVista) {
         case 'boa_eli_correcciones':
-           $url = "http://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSONOCORRE&SORT=-PUBL&SEPARADOR=&SECC-C=generales&CODR-C=(4+o+20+o+22+o+103+o+144+o+18)";
+           $url = "https://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSONOCORRE&SORT=-PUBL&SEPARADOR=&SECC-C=generales&CODR-C=(4+o+20+o+22+o+103+o+144+o+18)";
         break;
         case 'boa_eli_ordenes':
-            $url = "http://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSONO&SORT=-PUBL&SEPARADOR=&SECC-C=generales&CODR-C=11&@FDIS-GE=20120101";
+            $url = "https://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSONO&SORT=-PUBL&SEPARADOR=&SECC-C=generales&CODR-C=11&@FDIS-GE=20120101";
         break;
         case 'boa_eli_ordenes_correcciones':
-            $url = "http://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSONOCORRE&SORT=-PUBL&SEPARADOR=&SECC-C=generales&CODR-C=12&@FDIS-GE=20120101";
+            $url = "https://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSONOCORRE&SORT=-PUBL&SEPARADOR=&SECC-C=generales&CODR-C=12&@FDIS-GE=20120101";
         break;
         default:
             //boa_eli
-            $url = "http://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSOND&SORT=-PUBL&SEPARADOR=&&SECC-C=generales&RANG=(ley+o+decreto)&OP1-C=NO&RANG=real&OP2-C=NO&RANG=correccion&OP3-C=NO&RANG=organica";
+            $url = "https://www.boa.aragon.es/cgi-bin/AODB/BRSCGI?CMD=VERLST&OUTPUTMODE=JSON&BASE=BOLE&DOCS=1-10000&SEC=OPENDATAELIJSOND&SORT=-PUBL&SEPARADOR=&&SECC-C=generales&RANG=(ley+o+decreto)&OP1-C=NO&RANG=real&OP2-C=NO&RANG=correccion&OP3-C=NO&RANG=organica";
         break;
     }
     global $RutaTrabajo;
@@ -635,7 +662,8 @@ function GenerarCSVDesdeBOAJSON()
 
         $json = utf8_encode(file_get_contents($FicheroDestinoJSON));
         $jsonDecoded = json_decode($json, true);
-         
+        
+	 
         //Give our CSV file a name.
         $fp = fopen($FicheroDestinoCSV, 'w+');
 
@@ -650,6 +678,7 @@ function GenerarCSVDesdeBOAJSON()
          
         //Finally, close the file pointer.
         fclose($fp);
+
 
         FormatearCSV($FicheroDestinoCSV);
 }

@@ -11,6 +11,12 @@
     define("CLAVE_LAT", "lat");                                           //La clave que tiene la latitud de la coordenada
     define("CLAVE_LOG", "log");                                           //La clave que tiene la longitud de la coordenada
     define("CLAVE_NOM_ENLACE", "nom_enlace");                             //La clave que tiene el nombre para poder hacer referencia a las paginas externas
+    define("CLAVE_WIKI", "cod_wiki");                             //La clave que tiene el nombre para poder hacer referencia a las paginas externas
+    define("CLAVE_DBPEDIA", "cod_dbPedia");                             //La clave que tiene el nombre para poder hacer referencia a las paginas externas
+    define("CLAVE_ARAGOPEDIA", "denom_aragopedia");                             //La clave que tiene el nombre para poder hacer referencia a las paginas externas
+    define("URL_CLAVE_WIKI", "../VistasCsv/Relacion/Vista_Aragopedia_Wikipedia_DbPedia_mun.csv");     //Ruta al achivo de datos externo para en campo de MunicipioAragopediaURI
+    define("CLAVE_COMUNIDAD", "cod_comunidad");
+    define("PRESUPUESTO", "presupuesto");
     
     $vista=11;
     include 'comun.php';   
@@ -18,7 +24,8 @@
     $arrayClaves = obtenerURL (URL_CLAVE_MUN);
     $arrayProvincias = obtenerURL (URL_CLAVE_PRO); 
     $arrayCordenadas = obtenerCordenadas ();
-    
+    $arrayWikiDbpediaAragopedia = obtenerWikiDbPediaAragopedia (URL_CLAVE_WIKI);
+
     if ($archivoCSV !== false) {
         array_push ($keys, CLAVE_URL_MUN);
         fwrite ($archivoCSV, "\"".CLAVE_URL_MUN."\";");
@@ -34,6 +41,21 @@
         
         array_push ($keys, CLAVE_NOM_ENLACE);
         fwrite ($archivoCSV, "\"".CLAVE_NOM_ENLACE."\";");      
+        
+        array_push ($keys, CLAVE_WIKI);
+        fwrite ($archivoCSV, "\"".CLAVE_WIKI."\";");      
+
+        array_push ($keys, CLAVE_DBPEDIA);
+        fwrite ($archivoCSV, "\"".CLAVE_DBPEDIA."\";");    
+        
+        array_push ($keys, CLAVE_ARAGOPEDIA);
+        fwrite ($archivoCSV, "\"".CLAVE_ARAGOPEDIA."\";");    
+        
+        array_push ($keys, CLAVE_COMUNIDAD);
+        fwrite ($archivoCSV, "\"".CLAVE_COMUNIDAD."\";");    
+
+        array_push ($keys, PRESUPUESTO);
+        fwrite ($archivoCSV, "\"".PRESUPUESTO."\";"); 
         
         fwrite ($archivoCSV, "\n");
         
@@ -75,9 +97,13 @@
                         $elemento = str_replace (",", ".", $elemento);
                     }
                     
-                    if ($key == CLAVE_NOM_ENLACE) {
+                    if ($key == CLAVE_WIKI || $key == CLAVE_DBPEDIA || $key ==  CLAVE_ARAGOPEDIA || $key == CLAVE_COMUNIDAD || $key == PRESUPUESTO) {
+                        $codMun = $xml->item[$x]->{CLAVE_URI}->__toString();
+                        $wiki = $arrayWikiDbpediaAragopedia [$codMun];
+                        $elemento = $wiki [$key];
                         
                     }
+                    
                     
                     editarElemento($elemento);
                     
@@ -93,7 +119,7 @@
         escribirError ($vista, "Se ha producido un error en la vista:");
     }
 	
-    //Funcion que obtiene las coordenadas de un archivo de datos externo
+    //Funcion que obtiene las codenadas de un archivo de datos externo
     function obtenerCordenadas() {
         $array = array();
         $archivoClaves = fopen (URL_CORDENADAS, "r");

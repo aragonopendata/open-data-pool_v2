@@ -18,25 +18,31 @@
            
            for ($x = 0; $x < ($xml->count ()); $x++) {
                foreach ($keys as $key) {
-                   $elemento = $xml->item[$x]->$key->__toString();
+                   $elemento = $xml->item[$x]->$key;
                    
                    if ($key == CLAVE_URL) {
                        $elemento = obtenerUrlVinculacion($xml, $x, $vista, CLAVE_URI);
                    }
                    
                    if ($key == CLAVE_MUN) {     
-                       $codMun = $xml->item[$x]->{COD_MUN}->__toString();
+                       $codMun = $xml->item[$x]->{COD_MUN};
                        
                        while (strlen($codMun) < 3) {
                            $codMun = "0".$codMun;
                        }
                        
-                       $codPro= $xml->item[$x]->{COD_PRO}->__toString();
+                       $codPro= $xml->item[$x]->{COD_PRO};
                        $elemento = $codPro.$codMun;
                    }
                    
                    editarElemento($elemento);
-                   fwrite ($archivoCSV, "\"$elemento\";");
+                   	if (isInteger($elemento) || trim($elemento) == "" ) {
+							fwrite($archivoCSV, $elemento.";");
+						} else {
+							fwrite($archivoCSV, "\"$elemento\";");
+						}
+
+
                }
                fwrite ($archivoCSV, "\n");
            }

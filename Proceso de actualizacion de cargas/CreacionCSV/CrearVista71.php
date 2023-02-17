@@ -57,7 +57,7 @@
         fclose ($archivoCSV);
     }
     else {
-        escribirError ($vista, "Se ha producido un error en la vista:");
+        escribirError ($vista, "Se ha producido un erro en la vista:");
     }
 
 ?>

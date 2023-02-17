@@ -35,7 +35,7 @@
 						}
 						
 						if ($key == CLAVE_NECESITA) {
-							$entidad = $xml->item[$x]->{CLAVE_URI1}->__toString  ();
+							$entidad = $xml->item[$x]->{CLAVE_URI1}->__toString();
 							$codigoMun = $xml11->xpath ("/".$root."/".$item."[".CLAVE_BUSCAR."='".$entidad."']"."/".CLAVE_NECESITA);
 							$elemento = $codigoMun [0]; //La cunsulta xpath devuelve un array
 						}
@@ -48,7 +48,11 @@
 						
 						$elemento = preg_replace("/\r|\n/", "", $elemento); //Quitamos los saltos de linea
 						$elemento = str_replace ("\"", "\"\"", $elemento); //cambiamos el caracter " por ""
-						fwrite ($archivoCSV, "\"$elemento\";");
+						if (isInteger($elemento) || trim($elemento) == "" ) {
+		                            		fwrite($archivoCSV, $elemento.";");
+                		        	} else {
+                            				fwrite($archivoCSV, "\"$elemento\";");
+						}
 					}
 					fwrite ($archivoCSV, "\n");
 				}

@@ -5,19 +5,40 @@
     define("CLAVE_COMAR", "denominacion");                                  //La clave que se usa para poder relacionar la vista con el archivo de datos adicionales
     define("CLAVE_NECESITA", "codigo_mun");                                 //La calve del id de la vista 11 Datos Municipio
     define ("RUTA_XML11", "../VistasXml/Vista11/Vista_11_1.xml");           //La ruta del xml para poder optener el codigo del municipio que corresponde
+    define("CLAVE_WIKI", "cod_wiki");                             //La clave que tiene el nombre para poder hacer referencia a las paginas externas
+    define("CLAVE_DBPEDIA", "cod_dbPedia");                             //La clave que tiene el nombre para poder hacer referencia a las paginas externas
+    define("CLAVE_ARAGOPEDIA", "denom_aragopedia");                             //La clave que tiene el nombre para poder hacer referencia a las paginas externas
+    define("URL_CLAVE_WIKI", "../VistasCsv/Relacion/Vista_Aragopedia_Wikipedia_DbPedia_comarca.csv");     //Ruta al achivo de datos externo para en campo de MunicipioAragopediaURI
+    define("TIT_COMARCA", "tit_comarca");
+    define("PRESUPUESTO", "presupuesto");
     $vista=10;
     include 'comun.php';   
     
     
     $xml11 = simplexml_load_file (RUTA_XML11);
     $arrayClaves = obtenerURL (URL_CLAVE_COMAR);
+    $arrayWikiDbpediaAragopedia = obtenerWikiDbPediaAragopedia (URL_CLAVE_WIKI);
+
     $num=0;
     if ($archivoCSV !== false) {
         array_push ($keys, CLAVE_URL_COMAR);
         fwrite ($archivoCSV, "\"".CLAVE_URL_COMAR."\";");      
-        array_push ($keys, CODIGO_MUN);
-        fwrite ($archivoCSV, "\"".CODIGO_MUN."\";");      
         
+        array_push ($keys, CLAVE_WIKI);
+        fwrite ($archivoCSV, "\"".CLAVE_WIKI."\";");      
+
+        array_push ($keys, CLAVE_DBPEDIA);
+        fwrite ($archivoCSV, "\"".CLAVE_DBPEDIA."\";");    
+        
+        array_push ($keys, CLAVE_ARAGOPEDIA);
+        fwrite ($archivoCSV, "\"".CLAVE_ARAGOPEDIA."\";");    
+
+        array_push ($keys, TIT_COMARCA);
+        fwrite ($archivoCSV, "\"".TIT_COMARCA."\";"); 
+
+        array_push ($keys, PRESUPUESTO);
+        fwrite ($archivoCSV, "\"".PRESUPUESTO."\";"); 
+
         fwrite ($archivoCSV, "\n");
         for ($i = 1; $i <= $numeroArchivos; $i ++) {
             $datosArchivo = file_get_contents (RUTA_XML."Vista_".$vista."_$i.xml");
@@ -46,7 +67,12 @@
                             $elemento = obtenerUrlVinculacion($xml, $x, $vista, CLAVE_URI);
                         }
                         
+                        if ($key == CLAVE_WIKI || $key == CLAVE_DBPEDIA || $key ==  CLAVE_ARAGOPEDIA || $key == TIT_COMARCA || $key == PRESUPUESTO) {
+                                $codMun = $xml->item[$x]->{CLAVE_URI}->__toString();
+                                $wiki = $arrayWikiDbpediaAragopedia [$codMun];
+                                $elemento = $wiki [$key];
                         
+                      }
                         editarElemento($elemento);
                         
                         fwrite ($archivoCSV, "\"$elemento\";");

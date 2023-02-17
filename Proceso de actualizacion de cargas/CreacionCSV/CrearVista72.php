@@ -1,14 +1,14 @@
 <?php
-	$vista = 72;               								//La vista de donde se optiene los datos
-	
+	              								
+	define("CLAVE_MUN", "municipio_establecimiento");                       //Una de las claves por la cual se compone la calve que necesita
 	define ("CLAVE_NECESITA", "codigo_mun");				//La clave que necesita para poder completar los datos
 	define ("MUNICIPIO", "municipio_establecimiento");		//La clave relaciona con el municipio	
 	define ("PROVINCIA", "provincia_establecimiento");		//La clave relaciona con la provincia
 	define ("CLAVE_URI", "signatura");
-	
+	$vista = 72; 	 //La vista de donde se optiene los datos
 	include 'comun.php';
 	
-		
+	
 	
 	
 	
@@ -19,7 +19,8 @@
 	    fwrite ($archivoCSV, "\n"); //introducimos un salto de linea para separar las keys del resto de los elemntos
 	    
 		for ($i=1; $i <= $numeroArchivos; $i++){
-		    $datosArchivo = file_get_contents (RUTA_XML."vista_".$vista."_$i.xml");
+		    $datosArchivo = file_get_contents (RUTA_XML."Vista_".$vista."_$i.xml");
+			echo "STRING:".is_string ($datosArchivo);
 			if (is_string ($datosArchivo) ) {
 				$datosArchivo = str_replace ("list-item", "item", $datosArchivo);
 				$xml = simplexml_load_string($datosArchivo);

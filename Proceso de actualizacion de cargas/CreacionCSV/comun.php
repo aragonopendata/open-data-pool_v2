@@ -161,6 +161,27 @@ require_once '../lib/filesystem.php'; // Contiene la configuracion del programa.
         return $array;
     }
     
+    function obtenerWikiDbPediaAragopedia($ruta) {
+        $array = array();
+        $archivoClaves = fopen ($ruta, "r");
+        fgetcsv($archivoClaves, 0, ";","\"",'"');
+        while (($datos = fgetcsv($archivoClaves, 0, ";","\"",'"')) == true)
+        {
+            $corde = array ();
+            
+            $corde [CLAVE_WIKI] = $datos[2];
+            $corde [CLAVE_DBPEDIA] = $datos[3];
+            $corde [CLAVE_ARAGOPEDIA] = $datos[1];
+            $corde [CLAVE_COMUNIDAD] = $datos[4];
+            $corde[TIT_COMARCA] = $datos[5];
+            $corde[PRESUPUESTO] = $datos[6];
+            $array [$datos[0]] = $corde;
+            
+        }
+            
+        fclose($archivoClaves);
+        return $array;
+    }
     
     function arrayClavesFicheroRelacionar ($codigosVistaNecesita){
         $carpetaRelacionar = new FilesystemIterator(RUTA_XML_DEPENDE, FilesystemIterator::SKIP_DOTS); //Obtiene la carpeta de los xml para saber cunatos tiene

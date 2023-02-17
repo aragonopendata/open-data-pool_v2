@@ -47,14 +47,14 @@
                             
                             $cod_mun = $id_pro.$id_mun;
                             
-                            $resultado = $xml11->xpath ("/".$root."/".$item."[".CLAVE_NECESITA."='".$cod_mun."']"."/".$claveBuscar);
+                            #$resultado = $xml11->xpath ("/".$root."/".$item."[".CLAVE_NECESITA."='".$cod_mun."']"."/".$claveBuscar);
                             
-                            if (empty ($resultado)) {
-                                $cp = $xml->item[$x]->{CLAVE_CP}->__toString();
-                                $resultado = $xml11->xpath ("/".$root."/".$item."[$claveBuscar=".$cp."]/".CLAVE_NECESITA);
+                            #if (empty ($resultado)) {
+                            #    $cp = $xml->item[$x]->{CLAVE_CP}->__toString();
+                            #    $resultado = $xml11->xpath ("/".$root."/".$item."[$claveBuscar=".$cp."]/".CLAVE_NECESITA);
                                 
-                                $cod_mun = $resultado [0]; //Resultados es un array 
-                            }
+                            #    $cod_mun = $resultado [0]; //Resultados es un array 
+                            #}
                             
                             $elemento = $cod_mun;
                             
@@ -76,7 +76,7 @@
         fclose ($archivoCSV);
     }
     else {
-        escribirError ($vista, "Se ha producido un error en la vista:");
+        escribirError ($vista, "Se ha producido un erro en la vista:");
     }
 
 ?>
